@@ -7,6 +7,8 @@ import uuid
 from world import WEAPONS, free, move, interior_at
 from combat import shoot, update_projectiles
 from zombies import update_zombies
+from enemy_types import spawn_enemies
+from enemy_damage import update_statuses
 
 
 class Game:
@@ -14,6 +16,7 @@ class Game:
         self.players, self.zombies = {}, {}
         self.events, self.drops = [], []
         self.projectiles, self.fires = [], []
+        self.swarms = []
         self.save_score = save_score
         self.counter = 0
         self.tasks = set()
@@ -24,7 +27,7 @@ class Game:
         task.add_done_callback(self.tasks.discard)
 
     def add_player(self, session, ws):
-        player = {'id': uuid.uuid4().hex[:12], 'name': session['name'], 'weapon': session['weapon'], 'ws': ws, 'lock': asyncio.Lock()}
+        player = {'id': uuid.uuid4().hex[:12], 'name': session['name'], 'weapon': session['weapon'], 'skin': session.get('skin', 'soldier'), 'ws': ws, 'lock': asyncio.Lock()}
         self.reset(player)
         self.players[player['id']] = player
         self.spawn_zombies(player, 12)
@@ -39,7 +42,7 @@ class Game:
         p.update(x=x, z=z, angle=0, hp=100, ammo=WEAPONS[p['weapon']]['mag'], reserve=WEAPONS[p['weapon']]['reserve'], aim_distance=20, vx=0, vz=0,
                  score=0, kills=0, pvp=0, stamina=100, reload_until=0, last_shot=0, killer='',
                  protected_until=now+12, awaiting_input=True, input_time=now, born=now, died_at=0, last_spawn=now, trigger=False,
-                 controls={'x': 0, 'z': 0, 'fire': False, 'sprint': False})
+                 statuses={}, controls={'x': 0, 'z': 0, 'fire': False, 'sprint': False})
 
     def respawn(self, p):
         old_id = p['id']
@@ -56,16 +59,7 @@ class Game:
         self.spawn_zombies(p, 8)
 
     def spawn_zombies(self, p, count):
-        if len(self.zombies) >= 600:
-            return
-        for _ in range(count):
-            angle, radius = random.uniform(0, 6.28), random.uniform(16, 42)
-            x, z = p['x']+math.sin(angle)*radius, p['z']+math.cos(angle)*radius
-            if free(x, z):
-                self.counter += 1
-                zid = f'z{self.counter}'
-                self.zombies[zid] = {'id': zid, 'x': x, 'z': z, 'angle': 0, 'hp': 100,
-                                     'zombie': True, 'variant': self.counter % 5, 'speed': .55, 'last_attack': 0, 'mode':'wander','wander_until':0}
+        spawn_enemies(self, p, count)
 
     def set_input(self, p, data):
         try:
@@ -137,6 +131,7 @@ class Game:
                 self.events.append({'type': 'supply', 'owner': p['id']})
         update_zombies(self,living,dt,now)
         update_projectiles(self,dt,now)
+        update_statuses(self, now)
         for drop in list(self.drops):
             picked = next((p for p in living if math.hypot(p['x']-drop['x'], p['z']-drop['z']) < 2), None)
             if picked:
@@ -152,12 +147,22 @@ class Game:
             return (e['x']-p['x'])**2+(e['z']-p['z'])**2 < 85**2
         def compact(e, fields):
             return {k: round(e[k], 2) if isinstance(e[k], float) else e[k] for k in fields}
-        me = compact(p, ['id', 'name', 'weapon', 'x', 'z', 'angle', 'hp', 'ammo', 'reserve', 'score', 'kills', 'pvp', 'stamina', 'killer','vx','vz'])
+        def actor(e):
+            result = compact(e, ['id', 'name', 'weapon', 'skin', 'x', 'z', 'angle', 'hp'])
+            result['firing'] = e['hp'] > 0 and not e['reload_until'] and now-e['last_shot'] < .24
+            result['running'] = math.hypot(e['vx'], e['vz']) > 6.1
+            result['reloading'] = max(0, e['reload_until']-now)
+            result['reload_duration'] = WEAPONS[e['weapon']]['reload']
+            return result
+        me = compact(p, ['id', 'name', 'weapon', 'skin', 'x', 'z', 'angle', 'hp', 'ammo', 'reserve', 'score', 'kills', 'pvp', 'stamina', 'killer','vx','vz'])
         me['interior']=interior_at(p['x'],p['z'])
+        me['reload_duration'] = WEAPONS[p['weapon']]['reload']
+        me['statuses'] = {kind: round(max(0, effect['until']-now), 1) for kind, effect in p.get('statuses', {}).items() if effect['until'] > now}
         me.update(reloading=max(0, p['reload_until']-now), protected=max(0, p['protected_until']-now), awaiting_input=p['awaiting_input'], survived=0 if p['awaiting_input'] else int((p['died_at'] or now)-p['born']))
         return {'type': 'state', 'me': me, 'online': len(self.players),
-                'players': [compact(e, ['id', 'name', 'weapon', 'x', 'z', 'angle', 'hp']) for e in self.players.values() if e['id'] != p['id'] and close(e)],
-                'zombies': [compact(e, ['id', 'x', 'z', 'angle', 'hp', 'variant','mode']) for e in self.zombies.values() if close(e)],
+                'players': [actor(e) for e in self.players.values() if e['id'] != p['id'] and close(e)],
+                'zombies': [{**compact(e, ['id', 'x', 'z', 'angle', 'hp', 'variant', 'mode']), 'enemy_type': e.get('enemy_type', 'normal'), 'runner': e.get('runner', False), 'max_hp': e.get('max_hp', 100), 'pack': e.get('pack', ''), 'attacking': e.get('attack_until', 0) > now} for e in self.zombies.values() if close(e)],
+                'swarms': [compact(e, ['id', 'owner', 'target', 'x', 'z']) for e in self.swarms if close(e)],
                 'projectiles': [compact(e,['id','kind','owner','x','z','dx','dz','remaining','total']) for e in self.projectiles if close(e)],
                 'fires': [{**compact(e,['id','x','z','r']), 'ttl':round(e['until']-now,2)} for e in self.fires if close(e)],
                 'drops': [{k: e[k] for k in ('id', 'x', 'z')} for e in self.drops if close(e)],
@@ -178,6 +183,7 @@ class Game:
                     self.drops.clear()
                     self.projectiles.clear()
                     self.fires.clear()
+                    self.swarms.clear()
             except Exception:
                 logging.exception('World tick failed')
             await asyncio.sleep(max(.001, .05-(time.monotonic()-now)))

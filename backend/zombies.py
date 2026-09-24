@@ -1,30 +1,73 @@
 import math
 import random
 from world import move, wall_distance
+from enemy_types import ENEMY_TYPES
+from enemy_damage import damage_player, apply_status, dismiss_hive
+from enemy_attacks import update_flame, launch_swarm, update_swarms
+from enemy_navigation import chase
 
 
-def update_zombies(game,living,dt,now):
-    for zid,z in list(game.zombies.items()):
-        if z['hp']<=0: game.zombies.pop(zid,None); continue
-        if living and min(math.hypot(p['x']-z['x'],p['z']-z['z']) for p in living)>125:
-            game.zombies.pop(zid,None); continue
-        candidates=[p for p in living if not p['awaiting_input'] and p['hp']>0 and math.hypot(p['x']-z['x'],p['z']-z['z'])<=5 and wall_distance(z['x'],z['z'],p['x'],p['z'])>.98]
+def wander(enemy, dt, now, pack=None):
+    if pack:
+        cx = sum(e['x'] for e in pack)/len(pack)
+        cz = sum(e['z'] for e in pack)/len(pack)
+        angle = math.atan2(cx-enemy['x'], cz-enemy['z']) if math.hypot(cx-enemy['x'], cz-enemy['z']) > 3 else math.sin(int(now/5)+int(pack[0]['variant']))*math.pi
+        enemy['mode'] = 'wander'; enemy['angle'] = angle
+        move(enemy, math.sin(angle)*.85*dt, math.cos(angle)*.85*dt)
+        return
+    if enemy.get('mode') not in ('idle', 'wander') or now > enemy.get('wander_until', 0):
+        enemy['mode'] = 'wander' if random.random() > .25 else 'idle'
+        enemy['angle'] = random.uniform(0, math.tau); enemy['wander_until'] = now+random.uniform(2.5, 6)
+    if enemy['mode'] == 'wander':
+        before = (enemy['x'], enemy['z'])
+        move(enemy, math.sin(enemy['angle'])*.55*dt, math.cos(enemy['angle'])*.55*dt)
+        if math.hypot(enemy['x']-before[0], enemy['z']-before[1]) < .001:
+            enemy['angle'] += 1.4; enemy['wander_until'] = now+1.5
+
+
+def update_zombies(game, living, dt, now):
+    game.path_budget = 2
+    packs, alerts = {}, {}
+    for e in game.zombies.values():
+        if e.get('pack') and e['hp'] > 0:
+            packs.setdefault(e['pack'], []).append(e)
+    eligible = [p for p in living if not p['awaiting_input'] and p['hp'] > 0]
+    for key, pack in packs.items():
+        candidates = [p for p in eligible if any(math.hypot(p['x']-e['x'], p['z']-e['z']) <= 22 and wall_distance(e['x'], e['z'], p['x'], p['z']) > .98 for e in pack)]
         if candidates:
-            target=min(candidates,key=lambda p:(p['x']-z['x'])**2+(p['z']-z['z'])**2)
-            dx,dz=target['x']-z['x'],target['z']-z['z'];distance=math.hypot(dx,dz)
-            z['mode']='attack';z['angle']=math.atan2(dx,dz)
-            if distance>1.25: move(z,dx/max(distance,1)*2.5*dt,dz/max(distance,1)*2.5*dt)
-            elif now-z['last_attack']>.95 and now>target['protected_until']:
-                target['hp']=max(0,target['hp']-12);z['last_attack']=now
-                if target['hp']==0:
-                    target['killer']='Enfekte';target['died_at']=now;game.persist(target)
-        else:
-            # Losing the five-metre proximity immediately ends pursuit.
-            if z.get('mode')=='attack' or now>z.get('wander_until',0):
-                z['mode']='wander' if random.random()>.32 else 'idle'
-                z['angle']=random.uniform(0,math.tau);z['wander_until']=now+random.uniform(2.5,6)
-            if z['mode']=='wander':
-                before=(z['x'],z['z'])
-                move(z,math.sin(z['angle'])*.55*dt,math.cos(z['angle'])*.55*dt)
-                if math.hypot(z['x']-before[0],z['z']-before[1])<.001:
-                    z['angle']+=1.4;z['wander_until']=now+1.5
+            alerts[key] = min(candidates, key=lambda p: math.hypot(p['x']-pack[0]['x'], p['z']-pack[0]['z']))
+    for zid, enemy in list(game.zombies.items()):
+        remembered = game.players.get(enemy.get('target_id'))
+        if remembered and (remembered['hp'] <= 0 or remembered['awaiting_input']):
+            remembered = None
+        if enemy['hp'] <= 0 or (not remembered and living and min(math.hypot(p['x']-enemy['x'], p['z']-enemy['z']) for p in living) > 125):
+            game.zombies.pop(zid, None); dismiss_hive(game, zid); continue
+        kind = enemy.get('enemy_type', 'normal'); profile = ENEMY_TYPES[kind]
+        if kind == 'immolator' and update_flame(game, enemy, living, now):
+            continue
+        candidates = [] if remembered else [p for p in eligible if p['hp'] > 0 and math.hypot(p['x']-enemy['x'], p['z']-enemy['z']) <= profile['detection'] and wall_distance(enemy['x'], enemy['z'], p['x'], p['z']) > .98]
+        target = remembered or (min(candidates, key=lambda p: (p['x']-enemy['x'])**2+(p['z']-enemy['z'])**2) if candidates else alerts.get(enemy.get('pack')))
+        if not target or target['hp'] <= 0:
+            enemy['target_id'] = ''
+            wander(enemy, dt, now, packs.get(enemy.get('pack'))); continue
+        if enemy.get('target_id') != target['id']:
+            game.events.append({'type': 'enemy_sound', 'action': 'aggro', 'enemy_type': kind, 'owner': zid, 'x': enemy['x'], 'z': enemy['z']})
+        enemy['target_id'] = target['id']
+        dx, dz = target['x']-enemy['x'], target['z']-enemy['z']; distance = math.hypot(dx, dz)
+        enemy['mode'] = 'attack'; enemy['angle'] = math.atan2(dx, dz)
+        visible = wall_distance(enemy['x'], enemy['z'], target['x'], target['z']) > .98
+        if kind == 'immolator' and distance <= profile['flame_range'] and visible and now-enemy['last_special'] >= 3.2:
+            enemy['last_special'] = now; enemy['windup_until'] = now+.45; enemy['mode'] = 'windup'; continue
+        if kind == 'hive' and distance <= 22 and visible:
+            launch_swarm(game, enemy, target, now)
+            if distance > 5:
+                enemy['mode'] = 'swarm'; continue
+        reach = 1.6 if kind == 'hellhound' else 1.35
+        if distance > reach:
+            chase(game, enemy, target, enemy.get('speed', profile['speed']), dt, now)
+        elif visible and now-enemy['last_attack'] >= (1.25 if kind == 'hellhound' else 1.0):
+            enemy['last_attack'] = now; enemy['attack_until'] = now+.28
+            game.events.append({'type': 'enemy_sound', 'action': 'attack', 'enemy_type': kind, 'owner': zid, 'x': enemy['x'], 'z': enemy['z']})
+            if damage_player(game, target, profile['damage'], profile['name'], now) and kind == 'hellhound':
+                apply_status(target, 'bleeding', zid, 'Cehennem Köpeği · Kanama', now)
+    update_swarms(game, dt, now)

@@ -1,162 +1,213 @@
 {
-  "project_name": "Zombi Salgını: Kıyamet Şehri (Zombie Survival Multiplayer)",
-  "language": "Turkish (tr-TR)",
-  "app_type": "3d_experience",
-  "design_context": "Post-Apocalyptic Tactical Isometric Multiplayer Survival",
-  "emotional_archetype": "Grim Tactical Survival (Dark, Urgent, High Contrast)",
+  "project_name": "DEADZONE — Westfall Character Skins & Weapon Pose Update",
+  "archetype": "ARCHETYPE 2: THE PERFORMANCE PRO (Tactical Minimalism & Military Precision)",
+  "design_mode": "Tactical Military HUD & Cyber-Realistic Post-Apocalypse",
+  "summary": "Concise incremental design blueprint adding 6 selectable character skins (Asker, FBI, Sivil, Terörist, Çete Erkek, Çete Kadın), real-time 3D character preview with idle weapon holding and firing poses based on reference images, 9-weapon loadout synchronization, mobile 390px support, and seamless multiplayer integration while strictly preserving the established DEADZONE visual language.",
+  "reference_analysis": {
+    "reference_image_idle": "https://customer-assets-cm19k8pv.emergentagent.net/job_community-hood/artifacts/7br1gh8b_image.png",
+    "reference_image_fire": "https://customer-assets-cm19k8pv.emergentagent.net/job_community-hood/artifacts/1uiui95z_image.png",
+    "idle_pose_breakdown": {
+      "character_posture": "Low-ready tactical shoulder or chest hold. Torso rotated slightly 12-15 degrees off-axis. Elbows tucked close to ribs. Left support hand cradling gun handguard/grip; right dominant hand on trigger assembly at chest/hip level. Muzzle depressed 20-30 degrees downward. Subtle cyclic breathing sway (0.012 vertical sine wave, 1.8s loop).",
+      "visual_tension": "Vigilant, relaxed combat ready. Weapon held safely yet immediately ready to snap into line of sight."
+    },
+    "fire_pose_breakdown": {
+      "character_posture": "Raised sightline combat firing stance. Both arms extended straight toward crosshair target line, rifle stock firmly wedged into right shoulder pocket. Left forearm locked beneath the barrel/shroud for vertical recoil mitigation. Head slightly cocked down towards iron sights/optics. High-energy muzzle flash illumination, intermittent barrel flash particle burst, and dynamic kickback recoil along Z-axis (-0.08m to -0.12m with exponential damping).",
+      "visual_tension": "Kinetic muzzle discharge, explosive recoil impulse, intense tactical focus, shell casing ejection angle."
+    }
+  },
+  "skins": [
+    {
+      "id": "soldier",
+      "name_tr": "Asker",
+      "name_en": "Military Soldier",
+      "callsign": "KORUCU-01",
+      "tag": "DÜZENLİ ORDU PİYADESİ",
+      "visual_identity": {
+        "shirt_color": "#4a5944",
+        "pants_color": "#2c382b",
+        "vest_color": "#334132",
+        "helmet_color": "#3d4c3a",
+        "skin_tone": "#caa17b",
+        "features": "Kevlar PASGT kask, taktik askeri balistik hücum yeleği, şarjör cepleri, omuz birim arması, kamuflaj askeri pantolon ve çöl botları."
+      }
+    },
+    {
+      "id": "fbi",
+      "name_tr": "FBI",
+      "name_en": "FBI Special Agent",
+      "callsign": "AJAN-09",
+      "tag": "FEDERAL OPERASYON BİRİMİ",
+      "visual_identity": {
+        "shirt_color": "#171c26",
+        "pants_color": "#14171d",
+        "vest_color": "#1c2331",
+        "helmet_color": "#1e2533",
+        "skin_tone": "#d2ad8c",
+        "features": "Lacivert/gece siyahı taktik rüzgarlık, sarı 'FBI' göğüs/sırt harfli taktik plaka taşıyıcı yelek, kulaklık telsiz aparatı, koyu operasyon şapkası veya kaskı."
+      }
+    },
+    {
+      "id": "civilian",
+      "name_tr": "Sivil",
+      "name_en": "Civilian Survivor",
+      "callsign": "GEZGİN-77",
+      "tag": "DİRENİŞÇİ SAKİN",
+      "visual_identity": {
+        "shirt_color": "#6e4d3b",
+        "pants_color": "#3f4651",
+        "vest_color": "#4d4133",
+        "helmet_color": null,
+        "skin_tone": "#cca785",
+        "features": "Kapüşonlu yıpranmış pamuklu ceket veya oduncu gömleği, kot pantolon, bere veya dağınık saç, basit göğüs askısı ve sırt çantası."
+      }
+    },
+    {
+      "id": "terrorist",
+      "name_tr": "Terörist",
+      "name_en": "Insurgent / Terrorist",
+      "callsign": "MİLİS-13",
+      "tag": "GAYRİNİZAMİ SAVAŞÇI",
+      "visual_identity": {
+        "shirt_color": "#3a3832",
+        "pants_color": "#524d40",
+        "vest_color": "#2e2b26",
+        "helmet_color": null,
+        "skin_tone": "#ba8e6c",
+        "features": "Yüzü saran koyu kırmızı/zeytin yeşili poşu (kufiye/balaklava), çapraz mühimmat kemeri (bandolier), haki kargo pantolon, deri eldivenler."
+      }
+    },
+    {
+      "id": "gang_male",
+      "name_tr": "Çete Erkek",
+      "name_en": "Male Gangster",
+      "callsign": "SOKAK-88",
+      "tag": "VAROŞ BARONU",
+      "visual_identity": {
+        "shirt_color": "#1c1c1e",
+        "pants_color": "#24252a",
+        "vest_color": "#30323a",
+        "helmet_color": null,
+        "skin_tone": "#b88c67",
+        "features": "Siyah deri ceket veya bomber mont, kollarda dövme dokusu, gümüş boyun zinciri, ters takılmış beyzbol şapkası, siyah kargo pantolon."
+      }
+    },
+    {
+      "id": "gang_female",
+      "name_tr": "Çete Kadın",
+      "name_en": "Female Gangster",
+      "callsign": "ASİ-23",
+      "tag": "YERALTI KESKİN NİŞANCISI",
+      "visual_identity": {
+        "shirt_color": "#47212b",
+        "pants_color": "#1a1a20",
+        "vest_color": "#2d161d",
+        "helmet_color": null,
+        "skin_tone": "#d7b297",
+        "features": "Koyu bordo/biker deri yelek veya dar taktik üst, yüksek kesim operasyon botları, hafif kadınsı model silüeti (dar bel/kalça orantısı), at kuyruğu veya örgülü saç detayı."
+      }
+    }
+  ],
   "typography": {
-    "headline_font": "Bebas Neue, Impact, sans-serif",
-    "subheading_font": "Rajdhani, Oswald, sans-serif",
-    "body_font": "Inter, system-ui, sans-serif",
-    "mono_font": "JetBrains Mono, Courier New, monospace",
-    "hierarchy": {
-      "h1_title": "text-4xl sm:text-5xl font-black uppercase tracking-wider text-red-500 drop-shadow-[0_4px_12px_rgba(230,57,70,0.5)]",
-      "h2_subtitle": "text-2xl sm:text-3xl font-bold tracking-tight text-slate-100",
-      "h3_card_title": "text-lg sm:text-xl font-semibold tracking-wide text-amber-400 uppercase",
-      "hud_data": "font-mono text-sm sm:text-base font-extrabold tracking-widest text-emerald-400",
-      "label": "text-xs font-bold uppercase tracking-widest text-slate-400"
+    "display_font": "'Barlow Condensed', sans-serif",
+    "mono_font": "'JetBrains Mono', monospace",
+    "accent_font": "'Bebas Neue', sans-serif",
+    "body_font": "'Barlow', sans-serif",
+    "scale": {
+      "h1_title": "text-4xl sm:text-5xl lg:text-6xl (maximum text-6xl, leading-tight, tracking-tight)",
+      "h2_section": "text-2xl sm:text-3xl lg:text-4xl (font-semibold)",
+      "h3_subsection": "text-xl sm:text-2xl",
+      "body": "text-sm sm:text-base (leading-relaxed)",
+      "technical_mono": "text-[9px] to text-xs (uppercase, tracking-[0.18em])"
     }
   },
   "colors": {
-    "background_dark": "#0A0C10",
-    "surface_dark": "#12161F",
-    "surface_accent": "#1E2430",
-    "border_tactical": "#2A3342",
-    "blood_red": "#DC2626",
-    "zombie_lime": "#84CC16",
-    "warning_amber": "#F59E0B",
-    "ammo_cyan": "#06B6D4",
-    "text_primary": "#F8FAFC",
-    "text_secondary": "#94A3B8",
-    "text_muted": "#64748B",
-    "fog_color": "#08090C",
-    "gradients": {
-      "blood_overlay": "radial-gradient(circle, rgba(220,38,38,0.15) 0%, rgba(10,12,16,0.95) 100%)",
-      "lobby_vignette": "linear-gradient(180deg, rgba(10,12,16,0.85) 0%, rgba(18,22,31,0.95) 100%)",
-      "health_bar": "linear-gradient(90deg, #EF4444 0%, #DC2626 100%)",
-      "stamina_bar": "linear-gradient(90deg, #EAB308 0%, #CA8A04 100%)"
+    "background_deep": "#0e1210",
+    "surface_card": "#1a2219e6",
+    "surface_card_selected": "#3a4732cc",
+    "primary_kinetic_red": "#d95845",
+    "primary_kinetic_hover": "#eb705a",
+    "accent_lime": "#b1c922",
+    "accent_sand": "#d5bf83",
+    "line_subtle": "#73806940",
+    "line_active": "#c7d69c",
+    "text_primary": "#eceee5",
+    "text_secondary": "#bbc3af",
+    "text_muted": "#7e8c72",
+    "status_dot": "#b1c994"
+  },
+  "ui_component_addition": {
+    "component_name": "CharacterShowcase & SkinSelector",
+    "placement_in_lobby": "Inside Lobby.jsx, between Nickname field ('01 ÇAĞRI ADIN') and Weapon field ('03 SİLAHINI SEÇ'). Re-index sections: 01 ÇAĞRI ADIN, 02 KARAKTER GÖRÜNÜMÜ, 03 SİLAHINI SEÇ.",
+    "skin_grid_layout": "6-card tactical grid (3 columns x 2 rows on desktop/tablet, 3 columns x 2 rows compact on mobile 390px). Height of skin card: 46px on mobile, 52px on desktop.",
+    "skin_card_anatomy": {
+      "icon_badge": "Square 24x24 badge with 2-letter abbreviation or miniature tactical icon (e.g., AS, FB, SV, TR, ÇE, ÇK).",
+      "name_label": "Uppercase Barlow Condensed font-semibold text-sm.",
+      "sub_tag": "JetBrains Mono text-[7px] text-muted tracking-widest.",
+      "active_indicator": "3px left border with accent lime (#b1c922) and checkmark badge in top-right."
+    },
+    "preview_pane_controls": {
+      "description": "In WeaponShowcase.jsx, expand the showcase area to display the actual 3D character in real-time holding the selected weapon, accompanied by an interactive pose toggle switch.",
+      "pose_toggle": {
+        "modes": ["idle (HAZIRLIK)", "fire (ATEŞ)"],
+        "ui_style": "Segmented tactical button group in showcase top bar: [BEKLEME / HAFİF TUTUŞ] vs [ATEŞ / ATIŞ POZU].",
+        "live_interaction": "Clicking 'ATEŞ' triggers cyclic gunfire animation on the 3D model, muzzle flash flash mesh, shell casing particle eject, and weapon kickback recoil."
+      }
     }
   },
-  "visual_enhancers": {
-    "card_style": "bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-lg shadow-2xl shadow-black/80 p-5",
-    "hud_panel": "bg-slate-950/80 border border-slate-800 backdrop-blur-md rounded-md p-3 shadow-lg",
-    "button_primary": "bg-red-600 hover:bg-red-500 active:bg-red-700 text-white font-black uppercase tracking-wider px-6 py-3 rounded-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-red-900/40 border border-red-400/30 cursor-pointer",
-    "button_secondary": "bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 font-bold uppercase tracking-wider px-4 py-2 rounded-md transition-all border border-slate-600 cursor-pointer",
-    "weapon_card_selected": "border-2 border-red-500 bg-red-950/30 shadow-[0_0_20px_rgba(220,38,38,0.3)] scale-[1.02]",
-    "noise_overlay": "pointer-events-none opacity-20 fixed inset-0 z-50 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"
+  "mobile_layout_strategy_390px": {
+    "max_viewport_width": "390px (iPhone 12/13/14 standard)",
+    "lobby_max_width": "100%",
+    "padding": "px-4 pt-4 pb-28",
+    "tabbed_or_stacked_accordion": "Show compact skin chips: 3 items per row with vertical height 44px each to prevent screen overflow. Total height of 6-item skin picker: under 100px.",
+    "character_preview_mobile": "On screens <= 767px, render a compact 180px height interactive WebGL canvas or interactive quick-view modal above the join button so mobile players can inspect their chosen skin and idle/fire stance."
   },
-  "three_js_game_engine": {
-    "camera_type": "OrthographicCamera (Isometric) or PerspectiveCamera low-angle isometric follow (Offset: X: 18, Y: 22, Z: 18)",
-    "controls": "WASD for movement, Mouse position in 3D world plane for player rotation & aiming, Left Click to Shoot, R to Reload, Shift to Sprint",
-    "lighting": {
-      "ambient": "Directional/Ambient intensity ~0.35 (Dark survival atmosphere)",
-      "sun_light": "Directional light casting real-time shadows with soft shadow maps",
-      "player_flashlight": "PointLight or SpotLight attached to player mesh pointing towards crosshair for fog-of-war effect"
-    },
-    "fog": "THREE.FogExp2('#08090C', 0.025) for limited visual range & atmosphere",
-    "procedural_town_map": {
-      "tile_size": "Large grid scale (~300x300 units) catering to high-density exploration and up to 200 player instances",
-      "elements": [
-        "Asphalt Road Network with yellow dividing lines & damaged cracks",
-        "Grass Ground Tiles with high-contrast turf texture",
-        "Abandoned Houses & Wooden Sheds (Ağaç Evler & Harabeler) with collision boxes",
-        "Pine Trees & Oak Trees (Ağaçlar) randomly scattered for cover",
-        "Wooden Fences, Barrels (Variller), Brick Walls, Sandbags",
-        "Supply Crates (Mühimmat Sandıkları) offering ammo drops and score bonuses",
-        "Blood Decals on ground upon zombie/player kills"
-      ]
-    },
-    "weapons_definition": [
-      {
-        "id": "ak47",
-        "name": "AK-47 Kalashnikov",
-        "type": "Tüfek (Rifle)",
-        "damage": 35,
-        "fire_rate": "Orta (Medium)",
-        "mag_size": 30,
-        "range": "Uzun (Long)",
-        "description": "Yüksek hasarlı klasik Sovyet taarruz tüfeği.",
-        "color_accent": "#DC2626"
-      },
-      {
-        "id": "ak117",
-        "name": "AK-117 Tactical",
-        "type": "Seri Tüfek (Fast Assault)",
-        "damage": 26,
-        "fire_rate": "Çok Hızlı (Very Fast)",
-        "mag_size": 35,
-        "range": "Orta (Medium)",
-        "description": "Yüksek atış hızına ve düşük tepmeye sahip modern assault rifle.",
-        "color_accent": "#3B82F6"
-      },
-      {
-        "id": "ak107",
-        "name": "AK-107 Precision",
-        "type": "Dengeli Taarruz (Balanced Rifle)",
-        "damage": 30,
-        "fire_rate": "Yüksek (High)",
-        "mag_size": 30,
-        "range": "Uzun (Long)",
-        "description": "Dengeli tepme mekanizması ile hassas uzun menzilli atışlar.",
-        "color_accent": "#10B981"
-      },
-      {
-        "id": "shotgun",
-        "name": "Otomatik Fişek Atan Tüfek (Auto Shotgun)",
-        "type": "Pompalı / Fişekli (Shotgun)",
-        "damage": 75,
-        "fire_rate": "Yavaş (Slow)",
-        "mag_size": 8,
-        "range": "Yakın (Short Spread)",
-        "description": "Yakın mesafede zombileri ve düşmanları darmadağın eden saçma saçan fişekli tüfek.",
-        "color_accent": "#F59E0B"
+  "three_js_implementation_plan": {
+    "models_js_enhancement": {
+      "function_signature": "createHuman(zombie = false, variant = 0, weaponType = 'ak47', skinId = 'soldier')",
+      "skin_coloring_and_accessories": {
+        "soldier": "Kevlar helmet (SphereGeometry cut), plate carrier chest box with 3 ammo pouches, green/khaki camo tints (#4a5944 shirt, #2c382b pants, #334132 vest).",
+        "fbi": "Dark navy tactical windbreaker (#171c26), high-contrast 'FBI' badge on chest, tactical vest, dark baseball cap/tactical lid.",
+        "civilian": "Brown flannel / hoodie torso (#6e4d3b), blue jeans (#3f4651), visible hair mesh instead of helmet, survival rucksack on back.",
+        "terrorist": "Shemagh / kufiye wrapped head (Cylinder/Torus geometry covering lower face), dark green/sand camo clothing, diagonal bandolier ammo strip.",
+        "gang_male": "Black leather jacket (#1c1c1e), gold/silver chain torus neck ring, reversed snapback cap, tattooed arm texture or dark sleeves.",
+        "gang_female": "Bordeaux tactical vest (#47212b), slender torso scaling (scale x: 0.88, z: 0.85), sleek hair mesh ponytail (CapsuleGeometry extended backward)."
       }
-    ]
-  },
-  "ui_components_structure": {
-    "lobby_overlay": {
-      "title": "ZOMBİ SALGINI: KIAMET ŞEHRİ",
-      "subtitle": "Çok Oyunculu Online Hayatta Kalma Oyunu",
-      "nickname_input": "Kullanıcı Adı (Takma Ad)",
-      "weapon_selector": "Silahını Seç (AK47, AK117, AK107, Otomatik Fişek Atan Tüfek)",
-      "start_button": "OYUNA BAŞLA (START GAME)",
-      "server_stats": "Online Oyuncu: 184 / 200 | Gecikme: 24ms | Dost Ateşi: AÇIK (Friendly Fire ON)"
     },
-    "hud_elements": {
-      "health_bar": "CAN (HEALTH) - Dinamik Kırmızı Bar + %100 Değeri",
-      "stamina_bar": "DAYANIKLILIK (STAMINA) - Sarı Bar (Koşma için)",
-      "ammo_counter": "MERMİ (AMMO) - Mermi Sayısı / Şarjör Deposu (Örn: 30 / 120) + Reload (R) Hatırlatıcısı",
-      "score_panel": "SKOR & LEŞ (SCORE & KILLS) - Zombi Leşi, Oyuncu Leşi, Toplam Puan",
-      "minimap_radar": "MİNİ HARİTA (MINIMAP) - Yuvarlak Radar, Oyuncu Yönü, Zombi Kırmızı Noktaları, Mühimmat Simgeleri",
-      "crosshair": "ÖZEL HEDEF GÖSTERGESİ (CUSTOM CROSSHAIR) - Fare Takip Eden Kırmızı/Yeşil Nişangah",
-      "leaderboard_modal": "LİDERLİK TABLOSU (TAB Key) - En Yüksek Skorlu Oyuncular Listesi & Ping",
-      "kill_feed": "ÖLDÜRME AKIŞI (KILL FEED) - Kim Kimi Öldürdü Bildirimleri (Dost Ateşi Uyarısı Dahil)",
-      "audio_settings_modal": "AYARLAR & SES (SETTINGS & SOUND) - Efekt, Müzik, Hassasiyet Kontrolleri"
-    },
-    "game_over_modal": "ÖLDÜNÜZ! (YOU DIED) - Yeniden Doğma Sayacı (Respawn Button), Katil İsmi, Kazanılan Puan Özeti"
+    "animation_human_enhancement": {
+      "function_signature": "animateHuman(g, time, moving, running, dt, direction, poseMode = 'idle', firing = false)",
+      "idle_pose_logic": "Arms rotated downward: left arm arm.rotation.x = -0.75, right arm arm.rotation.x = -0.85. Gun rested at chest height: gunRest.set(0.20, 1.25, 0.45). Gentle breathing oscillation: Math.sin(time * 2.2) * 0.008.",
+      "fire_pose_logic": "Both arms raised straight ahead: arm.rotation.x = -1.52, arm.rotation.y = 0.12. Gun pushed forward at eye level: gunRest.set(0.18, 1.48, 0.65). Cyclic firing recoil pulse: if firing, kickback gun.position.z -= 0.12 * Math.sin((time % 0.15) / 0.15 * Math.PI) with randomized muzzle flash mesh opacity."
+    }
   },
-  "instructions_to_main_agent": [
-    "1. Build the frontend in React + Three.js + Tailwind CSS with dark tactical survival aesthetic.",
-    "2. Ensure all UI labels are in TURKISH as requested by the user.",
-    "3. Provide realistic low-poly 3D models or procedural Three.js meshes for the player character (with weapon model in hands), zombies (green/decaying texture, glowing eyes), pine trees, wooden houses, roads, fences, and crates.",
-    "4. Implement smooth WASD movement, mouse aiming with 3D raycasting onto ground plane, left-click shooting with muzzle flash particles, projectile/hitscan tracer rays, impact hit effects, and zombie AI chasing nearest player.",
-    "5. Implement real WebSocket or simulated high-density multiplayer sync (displaying up to 200 dynamic player dots/entities, friendly fire combat, dynamic killfeed, and real-time score updates).",
-    "6. Weapons MUST include all 4 distinct firearms specified: AK47, AK117, AK107, and Otomatik Fişek Atan Tüfek (Auto Shotgun) with distinct stats, sound effects (web audio API synth or ambient audio), recoil, and bullet spread.",
-    "7. Include comprehensive sound settings (Ses Efektleri, Müzik, Nişan Hassasiyeti).",
-    "8. Maintain data-testid attributes on all interactive UI controls, weapon cards, lobby inputs, HUD panels, leaderboard buttons, and audio toggles for robust automated testing."
+  "multiplayer_and_backend_contracts": {
+    "join_request_payload": {
+      "name": "string (2-18 chars)",
+      "weapon": "string (one of 9 weapons: ak47, ak117, ak107, shotgun, m4, rocket, minigun, flamethrower, lava)",
+      "skin": "string (one of 6 skins: soldier, fbi, civilian, terrorist, gang_male, gang_female - defaults to 'soldier')"
+    },
+    "websocket_sync": {
+      "player_broadcast": "Include 'skin' field in state.players JSON snapshot so all connected clients instantiate the exact corresponding 3D skin model and materials."
+    }
+  },
+  "qa_test_ids": [
+    "skin-selection-label",
+    "skin-grid",
+    "skin-card-soldier",
+    "skin-card-fbi",
+    "skin-card-civilian",
+    "skin-card-terrorist",
+    "skin-card-gang_male",
+    "skin-card-gang_female",
+    "pose-toggle-idle",
+    "pose-toggle-fire",
+    "character-preview-canvas",
+    "join-game-button"
   ],
-  "testing_testids": {
-    "nickname_input": "data-testid=\"nickname-input\"",
-    "weapon_card_ak47": "data-testid=\"weapon-card-ak47\"",
-    "weapon_card_ak117": "data-testid=\"weapon-card-ak117\"",
-    "weapon_card_ak107": "data-testid=\"weapon-card-ak107\"",
-    "weapon_card_shotgun": "data-testid=\"weapon-card-shotgun\"",
-    "start_game_button": "data-testid=\"start-game-button\"",
-    "hud_health_bar": "data-testid=\"hud-health-bar\"",
-    "hud_ammo_count": "data-testid=\"hud-ammo-count\"",
-    "hud_score_count": "data-testid=\"hud-score-count\"",
-    "leaderboard_toggle": "data-testid=\"leaderboard-toggle\"",
-    "settings_modal_button": "data-testid=\"settings-modal-button\"",
-    "respawn_button": "data-testid=\"respawn-button\""
-  }
+  "instructions_to_main_agent": [
+    "CRITICAL: Do NOT alter or delete existing DEADZONE core mechanics (movement, bullet physics, sound system, audio preloading, leaderboards, settings).",
+    "Preserve all existing CSS classes in /app/frontend/src/App.css. Add additive CSS rules under .skin-grid, .skin-card, and .pose-segmented controls.",
+    "Add the 'skin' parameter to backend/server.py JoinRequest model (optional with default='soldier' for backwards compatibility).",
+    "Keep localStorage key 'deadzone-skin' to persist user selection across reloads.",
+    "Verify mobile responsiveness at exactly 390px width: ensure no horizontal overflow, buttons remain minimum 44px tap target height."
+  ]
 }

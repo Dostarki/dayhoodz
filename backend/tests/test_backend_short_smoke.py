@@ -83,28 +83,33 @@ def test_public_api_and_static_audio_smoke():
     assert sample_2.status_code == 200
 
 
-# Module: Zombie AI proximity logic (5m aggro threshold / pursuit end behavior)
-def test_zombie_distance_modes_idle_attack_and_pursuit_end():
+# Module: Current 15m acquisition and permanent pursuit until target disconnects.
+def test_zombie_distance_modes_idle_attack_and_pursuit_end(monkeypatch):
     game = Game(_noop_save_score)
     now = 100.0
 
-    # 6m: idle with future wander_until should stay idle and not track.
+    monkeypatch.setattr('zombies.wall_distance', lambda *_args: 1.0)
+    # 16m: an unseen target must not trigger normal enemy acquisition.
     z1 = {"id": "z1", "x": 0.0, "z": 0.0, "angle": 0.0, "hp": 100, "zombie": True, "variant": 0, "speed": 0.55, "last_attack": 0, "mode": "idle", "wander_until": now + 10}
     game.zombies = {"z1": z1}
-    p_far = _player("p1", "Far", "ak47", 0.0, 6.0)
+    p_far = _player("p1", "Far", "ak47", 0.0, 16.0)
     update_zombies(game, [p_far], dt=1.0, now=now)
     assert z1["mode"] == "idle"
 
-    # 4.9m + LOS clear: must switch to attack.
+    # 14.9m + LOS clear: must switch to attack and remember the target.
     z2 = {"id": "z2", "x": 0.0, "z": 0.0, "angle": 0.0, "hp": 100, "zombie": True, "variant": 0, "speed": 0.55, "last_attack": 0, "mode": "wander", "wander_until": 0}
     game.zombies = {"z2": z2}
-    p_near = _player("p2", "Near", "ak47", 0.0, 4.9)
+    p_near = _player("p2", "Near", "ak47", 0.0, 14.9)
+    game.players[p_near['id']] = p_near
     update_zombies(game, [p_near], dt=0.2, now=now)
     assert z2["mode"] == "attack"
 
-    # Again >5m: pursuit must end (not attack anymore).
-    p_out = _player("p3", "Out", "ak47", 0.0, 8.0)
-    update_zombies(game, [p_out], dt=0.2, now=now + 0.2)
+    # Leaving the acquisition radius does not end pursuit anymore.
+    p_near['z'] = 40.0
+    update_zombies(game, [p_near], dt=0.2, now=now + 0.2)
+    assert z2['mode'] == 'attack' and z2['target_id'] == p_near['id']
+    game.players.clear()
+    update_zombies(game, [], dt=0.2, now=now + 0.4)
     assert z2["mode"] in {"idle", "wander"}
 
 
@@ -133,10 +138,10 @@ def test_interior_has_no_invulnerability_when_unprotected():
 
 
 # Module: Projectile + fire mechanics (rocket AoE, lava pool ttl/pulse, flamethrower cone, ammo usage)
-def test_combat_projectiles_fire_and_ammo():
+def test_combat_projectiles_fire_and_ammo(monkeypatch):
     game = Game(_noop_save_score)
     game.persist = lambda _p: None
-    combat_module.wall_distance = lambda *_args, **_kwargs: 1.0
+    monkeypatch.setattr(combat_module, 'wall_distance', lambda *_args, **_kwargs: 1.0)
     now = 200.0
 
     owner = _player("owner", "Owner", "rocket", 0.0, 0.0)

@@ -3,19 +3,23 @@ import { ArrowRight, Check, ChevronRight, Crosshair, ShieldAlert, UserRound, Loa
 import { Button } from './ui/button';
 import { getWeaponPreviews } from '../game/weaponPreviews';
 import { WEAPONS } from '../game/config';
+import { SkinSelector } from './SkinSelector';
+import { CharacterShowcase } from './CharacterShowcase';
 export { WEAPONS } from '../game/config';
 
-export const Lobby = ({ weapon, setWeapon, start, mode, ready, error }) => {
+export const Lobby = ({ weapon, setWeapon, skin, setSkin, start, mode, ready, error }) => {
   const [name, setName] = useState(() => localStorage.getItem('deadzone-name') || 'Gezgin');
   const previews = useMemo(getWeaponPreviews, []);
   const selected = WEAPONS.find(w => w.id === weapon);
-  const submit = e => { e.preventDefault(); localStorage.setItem('deadzone-name', name); start(name, weapon); };
+  const submit = e => { e.preventDefault(); localStorage.setItem('deadzone-name', name); start(name, weapon, skin); };
   return <section className="lobby" data-testid="lobby-panel">
-    <div className="lobby-heading"><div className="eyebrow" data-testid="game-eyebrow"><span className="red-tick" /> WESTFALL <span className="eyebrow-slash">/</span> HAZIRLIK</div><h1 className="loadout-title" data-testid="game-title">SİLAHINI SEÇ</h1></div>
+    <div className="lobby-heading"><div className="eyebrow" data-testid="game-eyebrow"><span className="red-tick" /> WESTFALL <span className="eyebrow-slash">/</span> HAZIRLIK</div><h1 className="loadout-title" data-testid="game-title">KARAKTERİNİ HAZIRLA</h1></div>
     <form onSubmit={submit} className="loadout-form">
       <label className="section-label" htmlFor="nickname" data-testid="nickname-label"><span>01</span> ÇAĞRI ADIN</label>
       <div className="nickname-field"><UserRound size={16} /><input id="nickname" data-testid="nickname-input" autoComplete="nickname" minLength={2} maxLength={18} required value={name} onChange={e => setName(e.target.value)} placeholder="Çağrı adını gir" /><span className="field-status">HAZIR <i className="status-dot" /></span></div>
-      <div className="section-label weapon-label" data-testid="weapon-selection-label"><span>02</span> SİLAHINI SEÇ <small>{String(WEAPONS.length).padStart(2,'0')} SİLAH MEVCUT</small></div>
+      <SkinSelector skin={skin} setSkin={setSkin} />
+      <CharacterShowcase skin={skin} weapon={weapon} />
+      <div className="section-label weapon-label" data-testid="weapon-selection-label"><span>03</span> SİLAHINI SEÇ <small>{String(WEAPONS.length).padStart(2,'0')} SİLAH MEVCUT</small></div>
       <div className="weapon-grid" role="radiogroup" aria-label="Başlangıç silahı">
         {WEAPONS.map((w, index) => <button type="button" key={w.id} role="radio" aria-checked={weapon === w.id} className={`weapon-card ${weapon === w.id ? 'selected' : ''}`} onClick={() => setWeapon(w.id)} data-testid={`weapon-card-${w.id}`}>
           <span className="weapon-card-top"><span className="weapon-name">{w.name}</span><span className="weapon-index">{weapon === w.id ? <Check size={12} strokeWidth={3} /> : `0${index+1}`}</span></span>

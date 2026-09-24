@@ -2,27 +2,38 @@ import math
 import random
 import uuid
 from world import WEAPONS, wall_distance
+from enemy_types import ENEMY_TYPES
 
 
 def targets(game):
     return list(game.zombies.values())+list(game.players.values())
 
 
-def hurt(game,target,amount,owner,now):
+def hurt(game,target,amount,owner,now,source_name='Ateş'):
     if target['hp'] <= 0 or target.get('protected_until',0)>now: return
     target['hp'] = max(0,target['hp']-amount)
+    if target.get('zombie') and (target['hp'] <= 0 or now-target.get('last_hurt_sound', 0) >= .6):
+        target['last_hurt_sound'] = now
+        game.events.append({'type': 'enemy_sound', 'action': 'death' if target['hp'] <= 0 else 'hurt', 'enemy_type': target.get('enemy_type', 'normal'), 'owner': target['id'], 'x': target['x'], 'z': target['z']})
     if target['hp'] > 0: return
     zombie = target.get('zombie',False)
     if owner and owner['id'] != target['id']:
         owner['kills' if zombie else 'pvp'] += 1
         owner['score'] += 100 if zombie else 25
-    game.events.append({'type':'kill','owner':owner['id'] if owner else '', 'name':owner['name'] if owner else 'Ateş', 'target':'Enfekte' if zombie else target['name'],'x':target['x'],'z':target['z'],'zombie':zombie})
+    game.events.append({'type':'kill','owner':owner['id'] if owner else '', 'name':owner['name'] if owner else source_name, 'target':ENEMY_TYPES.get(target.get('enemy_type'), {}).get('name', 'Enfekte') if zombie else target['name'],'x':target['x'],'z':target['z'],'zombie':zombie,'skin':target.get('skin','soldier'),'weapon':target.get('weapon','ak47'),'enemy_type':target.get('enemy_type','normal')})
+    if zombie and target.get('enemy_type') == 'hive':
+        # Remove all insects and their active poison in the same simulation tick as the kill.
+        from enemy_damage import dismiss_hive
+        dismiss_hive(game, target['id'])
     if not zombie:
-        target['killer'] = owner['name'] if owner else 'Ateş'
+        target['killer'] = owner['name'] if owner else source_name
         target['died_at'] = now
         game.persist(target)
     elif owner and owner['kills']%3 == 0:
         game.drops.append({'id':target['id'],'x':target['x'],'z':target['z'],'expires':now+90})
+    if zombie and target.get('enemy_type') == 'immolator' and not target.get('death_exploded'):
+        target['death_exploded'] = True
+        explode(game, {'id': target['id'], 'kind': 'enemy_fire', 'x': target['x'], 'z': target['z'], 'owner': owner['id'] if owner else ''}, now)
 
 
 def explode(game,projectile,now):
@@ -31,12 +42,13 @@ def explode(game,projectile,now):
     if projectile['kind'] == 'lava':
         game.fires.append({'id':projectile['id'],'x':x,'z':z,'r':3.8,'until':now+8,'owner':projectile['owner'],'last_damage':0})
         radius,damage = 2.8,45
+    elif projectile['kind'] == 'enemy_fire': radius,damage = 6,90
     else: radius,damage = 8,220
     game.events.append({'type':'explosion','kind':projectile['kind'],'x':x,'z':z,'r':radius,'owner':projectile['owner']})
     for e in targets(game):
         distance = math.hypot(e['x']-x,e['z']-z)
         if distance < radius and wall_distance(x,z,e['x'],e['z']) > .95:
-            hurt(game,e,round(damage*(1-distance/radius*.7)),owner,now)
+            hurt(game,e,round(damage*(1-distance/radius*.7)),owner,now,source_name='Alevli patlaması' if projectile['kind'] == 'enemy_fire' else 'Ateş')
 
 
 def update_projectiles(game,dt,now):

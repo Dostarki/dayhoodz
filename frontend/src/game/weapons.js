@@ -136,22 +136,22 @@ function consolidate(group) {
   return merged;
 }
 
-function heavyWeapon(g,type){
+function heavyWeapon(g,type,ammo){
   if(type==='rocket'){
     barrel(g,-.08,.04,.125,1.96,olive);barrel(g,-1.08,.04,.185,.15,steel);
     barrel(g,-.53,.04,.146,.49,polymer);barrel(g,.75,.04,.13,.27,olive);
-    const warhead=new THREE.Mesh(new THREE.ConeGeometry(.215,.46,24),olive);warhead.rotation.z=-Math.PI/2;warhead.position.set(1.04,.04,0);g.add(warhead);
-    barrel(g,.795,.04,.207,.1,olive);part(g,-.08,-.20,0,.13,.32,.14,polymer);part(g,.40,-.17,0,.1,.28,.11,polymer);
+    const warhead=new THREE.Mesh(new THREE.ConeGeometry(.215,.46,24),olive);warhead.rotation.z=-Math.PI/2;warhead.position.set(1.04,.04,0);ammo.add(warhead);
+    barrel(ammo,.795,.04,.207,.1,olive);part(g,-.08,-.20,0,.13,.32,.14,polymer);part(g,.40,-.17,0,.1,.28,.11,polymer);
     part(g,.08,.24,0,.15,.27,.09,steel);part(g,.08,.39,0,.23,.06,.17,steel);part(g,-.33,.20,0,.035,.12,.07,steel);
   }else if(type==='minigun'){
     barrel(g,-.39,0,.245,.7,steel);barrel(g,-.78,0,.26,.09,polymer);
     for(let i=0;i<6;i++){const a=i*Math.PI/3;barrel(g,.48,Math.cos(a)*.16,.035,1.46,steel,Math.sin(a)*.16);barrel(g,1.12,Math.cos(a)*.16,.044,.1,edge,Math.sin(a)*.16);}
     for(const x of [.02,.74,1.02])barrel(g,x,0,.214,.07,steel);
     part(g,-.26,.35,0,.65,.075,.095,polymer);part(g,-.52,.22,0,.06,.26,.095,steel);part(g,.04,.22,0,.06,.26,.095,steel);
-    part(g,-.49,-.32,0,.12,.35,.14,polymer);part(g,-.32,-.36,0,.5,.28,.31,olive);
-    for(let i=0;i<9;i++)barrel(g,-.58+i*.055,-.23,.018,.16,brass,.21);
+    part(g,-.49,-.32,0,.12,.35,.14,polymer);part(ammo,-.32,-.36,0,.5,.28,.31,olive);
+    for(let i=0;i<9;i++)barrel(ammo,-.58+i*.055,-.23,.018,.16,brass,.21);
   }else if(type==='flamethrower'){
-    barrel(g,-.33,.01,.17,.88,olive);barrel(g,.50,.02,.06,1.0,steel);barrel(g,.98,.02,.105,.18,steel);
+    barrel(ammo,-.33,.01,.17,.88,olive);barrel(g,.50,.02,.06,1.0,steel);barrel(g,.98,.02,.105,.18,steel);
     barrel(g,.48,.13,.022,.65,brass);part(g,-.26,-.23,0,.15,.34,.14,polymer);part(g,.28,-.2,0,.10,.30,.12,polymer);
     for(const side of [-1,1]){barrel(g,-.68,.025,.068,.22,brass,side*.15);wire(g,[[-.79,-.02,side*.1],[-.91,-.35,side*.14],[-.45,-.46,side*.18],[-.30,-.12,side*.12]],.024,recess);}
     const valve=new THREE.Mesh(new THREE.TorusGeometry(.12,.017,6,16),brass);valve.position.set(-.47,.22,0);valve.rotation.x=Math.PI/2;g.add(valve);
@@ -159,12 +159,12 @@ function heavyWeapon(g,type){
   }else if(type==='lava'){
     part(g,-.14,0,0,1.0,.35,.31,steel);barrel(g,.53,0,.16,.54,polymer);barrel(g,.86,0,.19,.15,steel);barrel(g,.947,0,.12,.02,molten);
     part(g,-.37,-.30,0,.17,.34,.16,polymer);part(g,-.75,-.015,0,.27,.26,.22,olive);
-    for(const side of [-1,1]){barrel(g,-.09,0,.062,.65,molten,side*.19);for(let i=0;i<5;i++)part(g,-.36+i*.145,0,side*.215,.04,.27,.04,steel);}
+    for(const side of [-1,1]){barrel(ammo,-.09,0,.062,.65,molten,side*.19);for(let i=0;i<5;i++)part(ammo,-.36+i*.145,0,side*.215,.04,.27,.04,steel);}
     part(g,.08,.25,0,.28,.14,.16,steel);part(g,.08,.30,.087,.20,.033,.015,molten);
   }
 }
-function m4(g){
-  receiver(g,false);gripAndTrigger(g);magazine(g,'ak117');
+function m4(g,ammo){
+  receiver(g,false);gripAndTrigger(g);magazine(ammo,'ak117');
   barrel(g,-.74,.02,.047,.66,steel);
   extrude(g,[[-1.18,.10],[-.73,.07],[-.63,-.03],[-1.13,-.20]],.14,polymer,.013);part(g,-1.18,-.065,0,.042,.33,.17,recess);
   part(g,.51,.015,0,.49,.19,.19,polymer);barrel(g,.94,.015,.025,.47,steel);barrel(g,1.15,.015,.038,.12,steel);
@@ -178,12 +178,13 @@ function m4(g){
 export function createWeapon(type = 'ak47') {
   finishMaterials();
   if (!cache.has(type)) {
-    const g = new THREE.Group();
-    if(['rocket','minigun','flamethrower','lava'].includes(type))heavyWeapon(g,type);
-    else if(type==='m4')m4(g);
-    else { receiver(g, type === 'shotgun'); stock(g, type === 'ak117', type === 'shotgun'); magazine(g, type); gripAndTrigger(g); front(g, type); }
+    const g = new THREE.Group(), ammo = new THREE.Group();
+    if(['rocket','minigun','flamethrower','lava'].includes(type))heavyWeapon(g,type,ammo);
+    else if(type==='m4')m4(g,ammo);
+    else { receiver(g, type === 'shotgun'); stock(g, type === 'ak117', type === 'shotgun'); magazine(ammo, type); gripAndTrigger(g); front(g, type); }
     const merged = consolidate(g); merged.rotation.y = -Math.PI/2;
     const result = new THREE.Group(); result.add(merged); result.userData.muzzle = new THREE.Vector3(0, 0, 1.23);
+    const reloadPart = consolidate(ammo); reloadPart.rotation.y = -Math.PI/2; reloadPart.name = 'reload-part'; result.add(reloadPart);
     cache.set(type, result);
   }
   return cache.get(type).clone(true);

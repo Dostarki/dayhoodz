@@ -7,7 +7,7 @@ import { Lobby } from './components/Lobby';
 import { HUD } from './components/HUD';
 import { GamePanels } from './components/GamePanels';
 import { StartScreen } from './components/StartScreen';
-import { WeaponShowcase } from './components/WeaponShowcase';
+import { getSkin } from './game/skins';
 import { GameRenderer } from './game/renderer';
 import { audio } from './game/audio';
 import { useSession, API } from './hooks/useSession';
@@ -19,6 +19,7 @@ function GameApp() {
   const [weapon, setWeapon] = useState('ak47'), [muted, setMuted] = useState(() => localStorage.getItem('deadzone-muted') === 'true');
   const [volume, setVolume] = useState(() => Number(localStorage.getItem('deadzone-volume') || .35));
   const [quality, setQuality] = useState('auto');
+  const [skin, setSkin] = useState(() => getSkin(localStorage.getItem('deadzone-skin')).id);
   const location = useLocation(), navigate = useNavigate(), session = useSession(engine);
   const panel = location.pathname === '/leaderboard' ? 'leaderboard' : location.pathname === '/settings' ? 'settings' : null;
   const inGame = session.mode === 'playing';
@@ -35,7 +36,8 @@ function GameApp() {
     return () => { active = false; clearInterval(timer); engine.current?.dispose(); };
   }, []);
   useEffect(() => { audio.enabled = !muted; audio.volume = volume; audio.sync(); localStorage.setItem('deadzone-muted', muted); localStorage.setItem('deadzone-volume', volume); }, [muted, volume]);
-  useEffect(() => { if (ready && !inGame) engine.current?.setMode('lobby', weapon); }, [weapon, ready, inGame]);
+  useEffect(() => { if (ready && !inGame) engine.current?.setMode('lobby', weapon, skin); }, [weapon, skin, ready, inGame]);
+  useEffect(() => { localStorage.setItem('deadzone-skin', skin); }, [skin]);
   useEffect(() => { engine.current?.setBlocked(!!panel || session.state?.me.hp === 0); }, [panel, session.state?.me.hp]);
   useEffect(() => {
     if (inGame && location.pathname === '/loadout') navigate('/play', { replace: true });
@@ -67,8 +69,7 @@ function GameApp() {
         </nav>
         <div className="server-status" data-testid="server-status"><i className={status ? 'status-dot' : 'status-dot offline'} /><span>{status ? 'SUNUCU AKTİF' : 'BAĞLANIYOR'}<small>WESTFALL–01</small></span><Radio size={17} /></div>
       </header>
-      <Lobby weapon={weapon} setWeapon={setWeapon} start={session.start} mode={session.mode} ready={ready} error={session.error || worldError} />
-      <WeaponShowcase weapon={weapon} />
+      <Lobby weapon={weapon} setWeapon={setWeapon} skin={skin} setSkin={setSkin} start={session.start} mode={session.mode} ready={ready} error={session.error || worldError} />
       <div className="world-bottom" data-testid="world-bottom"><span className="live-world-label"><i className="status-dot" /> WESTFALL–01</span><div className="population"><strong data-testid="online-count">{String(status?.online ?? 0).padStart(2, '0')}</strong><span>/ 200<small>HAYATTA KALAN</small></span></div><span className="online-separator" /><div className="world-detail"><Crosshair size={18} /><span>DOST ATEŞİ<small>AÇIK</small></span></div><ArrowUpRight className="world-arrow" size={26} /></div>
       <footer className="lobby-footer"><span data-testid="version-label">ERKEN ERİŞİM <b>ALPHA 0.1</b></span><span className="footer-message" data-testid="footer-message">HER HAYAT BİR HİKÂYE. HER MERMİ BİR KARAR.</span><div><button data-testid="sound-toggle" aria-label={muted ? 'Sesi aç' : 'Sesi kapat'} title={muted ? 'Sesi aç' : 'Sesi kapat'} onClick={() => setMuted(!muted)}>{muted ? <VolumeX size={17} /> : <Volume2 size={17} />}</button><button data-testid="fullscreen-button" aria-label="Tam ekran" title="Tam ekran" onClick={fullScreen}><Maximize2 size={16} /></button></div></footer>
     </>}

@@ -34,3 +34,37 @@ rocket.wav, lava.wav, explosion.wav and reload.wav are distributed under
 the SAME CC BY-SA 3.0 license. These are designed sound effects, not literal
 recordings of these exact weapons. LAV-6 is a fictional lava launcher.
 See Q009-LICENSE.txt for the supplied license text.
+
+CREATURE AUDIO — added 2026-09-24
+These are real voice performances, dog recordings, insects and a gas-torch recording,
+edited for fictional creatures. They are NOT recordings of real zombies, and not
+audio extracted from Hunt: Showdown. The earlier oscillator-generated sounds were removed.
+
+Normal, Armored, Hive and Immolator voice layers:
+"Zombie/Monster roars, growls, grunts, devouring sounds (juicy)" by umnachtung.
+https://freesound.org/people/umnachtung/sounds/533165/
+Creative Commons Attribution 4.0 International (CC BY 4.0).
+https://creativecommons.org/licenses/by/4.0/
+Changes: short segment extraction, mono conversion, normalization, fades,
+moderate pitch changes and mixing with the CC0 recordings listed below.
+The voice-containing derivative files creatures/normal-*.wav, armored-*.wav,
+hive-*.wav and immolator-*.wav retain this attribution and CC BY 4.0 licensing.
+
+"Zombie dies 1" by Breviceps:
+https://freesound.org/people/Breviceps/sounds/445982/
+CC0 1.0; cropped, normalized, pitch-varied and mixed for each death voice.
+
+Hellhound barking (real dogs): "Barking dogs" #0288, Denis Chardonnet / BigSoundBank.
+https://bigsoundbank.com/barking-dogs-s0288.html
+"Dogs barking and crying #1" #1544, Joseph SARDIN / BigSoundBank.
+https://bigsoundbank.com/dogs-barking-and-crying-1-s1544.html
+Both CC0 1.0. Cropped, mono converted, normalized; attack bark pitch at 0.96x.
+creatures/hellhound-*.wav: CC0 1.0.
+
+Hive and flying insects: "Bumblebee #1" #1000, Joseph SARDIN / BigSoundBank.
+https://bigsoundbank.com/bumblebee-1-s1000.html
+CC0 1.0. Real insect recording, layered and crossfaded into a swarm loop.
+creatures/swarm.wav: CC0 1.0.
+
+Immolator fire layer uses the CC0 blowtorch #0931 credited above.
+Original edits: DEADZONE project. Preparation: /app/scripts/prepare_creature_audio.py.

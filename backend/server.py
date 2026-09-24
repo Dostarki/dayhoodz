@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from world import WORLD, WEAPONS
 from engine import Game
+from skins import SkinId
 
 load_dotenv(Path(__file__).parent / '.env')
 client = AsyncIOMotorClient(os.environ['MONGO_URL'])
@@ -60,6 +61,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 class JoinRequest(BaseModel):
     name: str = Field(min_length=2, max_length=18, pattern=r'^[\w .-]+$')
     weapon: str
+    skin: SkinId = 'soldier'
 
 
 class Score(BaseModel):
@@ -110,7 +112,7 @@ async def join(body: JoinRequest):
     if len(body.name.strip()) < 2:
         raise HTTPException(422, 'Çağrı adı en az 2 karakter olmalı.')
     token = secrets.token_urlsafe(24)
-    pending[token] = {'name': body.name.strip(), 'weapon': body.weapon, 'expires': now + 60}
+    pending[token] = {'name': body.name.strip(), 'weapon': body.weapon, 'skin': body.skin, 'expires': now + 60}
     return {'token': token}
 
 

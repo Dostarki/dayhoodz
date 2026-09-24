@@ -1,17 +1,22 @@
+import { CreatureAudio } from './creatureAudio';
+import { createCreatureSounds, preloadCreatureSounds } from './creatureSounds';
 const TYPES=['ak47','ak117','ak107','m4','shotgun','rocket','minigun','flamethrower','lava','explosion','reload'];
 class GameAudio{
   constructor(){this.volume=.35;this.enabled=true;this.buffers={};this.loops=new Map();this.raw={};}
   preload(){
-    if(!this.loading)this.loading=Promise.all(TYPES.map(async type=>{const r=await fetch(`/audio/${type}.wav`);if(!r.ok)throw new Error(`Ses dosyası yüklenemedi: ${type}`);this.raw[type]=await r.arrayBuffer();}));
+    if(!this.loading)this.loading=Promise.all([...TYPES.map(async type=>{const r=await fetch(`/audio/${type}.wav`);if(!r.ok)throw new Error(`Ses dosyası yüklenemedi: ${type}`);this.raw[type]=await r.arrayBuffer();}),preloadCreatureSounds()]).catch(e=>{this.loading=null;throw e;});
     return this.loading;
   }
   async init(type){
     if(!this.ctx){this.ctx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});this.master=this.ctx.createGain();this.compressor=this.ctx.createDynamicsCompressor();this.compressor.threshold.value=-12;this.compressor.ratio.value=5;this.master.connect(this.compressor);this.compressor.connect(this.ctx.destination);}
     await this.ctx.resume();await this.preload();
     await Promise.all(TYPES.map(async key=>{if(!this.buffers[key])this.buffers[key]=await this.ctx.decodeAudioData(this.raw[key].slice(0));}));
+    if(!this.creatures)this.creatures=new CreatureAudio(this,await createCreatureSounds(this.ctx));
     this.sync();
   }
-  sync(){if(this.master)this.master.gain.setTargetAtTime(this.enabled?this.volume:0,this.ctx.currentTime,.025);}
+  sync(){if(this.master)this.master.gain.setTargetAtTime(this.enabled?this.volume:0,this.ctx.currentTime,.025);if(!this.enabled||!this.volume)this.creatures?.stop();}
+  enemies(state){this.creatures?.update(state);}
+  stopEnemies(){this.creatures?.stop();}
   play(type,{gain=1,rate=1,pan=0}={}){
     if(!this.ctx||!this.buffers[type]||!this.enabled||!this.volume)return;
     this.sync();const source=this.ctx.createBufferSource(),level=this.ctx.createGain(),stereo=this.ctx.createStereoPanner();source.buffer=this.buffers[type];source.playbackRate.value=rate;level.gain.value=gain;stereo.pan.value=Math.max(-1,Math.min(1,pan));source.connect(level);level.connect(stereo);stereo.connect(this.master);source.start();source.onended=()=>{source.disconnect();level.disconnect();stereo.disconnect();};return source;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Settings2, Trophy, Heart, Zap, Crosshair, Skull, Volume2, VolumeX, ShieldAlert, RotateCcw, ArrowRight, Navigation, Building2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { WEAPONS } from './Lobby';
+import { StatusEffects } from './StatusEffects';
 
 const Minimap = ({ state, engine }) => {
   const ref = useRef(null);
@@ -25,6 +26,7 @@ export const HUD = ({ state, ping, engine, onSettings, onLeaderboard, onRespawn,
   useEffect(() => { const timer = setInterval(() => setFeed(old => old.filter(e => Date.now()-e.time < 6000)), 1000); return () => clearInterval(timer); }, []);
   if (!me) return <div className="connecting-hud" data-testid="connecting-hud">BÖLGEYE GİRİLİYOR…</div>;
   return <div className="hud" data-testid="game-hud">
+    <StatusEffects statuses={me.statuses} alive={me.hp > 0} />
     <div className="hud-top-left"><div className="hud-wordmark" data-testid="hud-brand">DEADZONE<span>LIVE</span></div><div className="hud-connection" data-testid="hud-connection"><i className="status-dot" /><span>{state.online} / 200</span><span>{ping} ms</span></div></div>
     <div className="hud-compass" data-testid="hud-compass"><span>B</span><i /><span>KB</span><i /><strong>K</strong><i /><span>KD</span><i /><span>D</span><div className="compass-pointer">▼</div></div>
     <div className="hud-buttons"><button data-testid="hud-leaderboard-button" title="Sıralama" aria-label="Sıralama" onClick={onLeaderboard}><Trophy size={19} /></button><button data-testid="hud-sound-button" title="Ses" aria-label="Ses aç/kapat" onClick={toggleMuted}>{muted ? <VolumeX size={19} /> : <Volume2 size={19} />}</button><button data-testid="hud-settings-button" title="Ayarlar" aria-label="Ayarlar" onClick={onSettings}><Settings2 size={19} /></button></div>
