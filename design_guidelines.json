@@ -1,213 +1,141 @@
 {
-  "project_name": "DEADZONE — Westfall Character Skins & Weapon Pose Update",
-  "archetype": "ARCHETYPE 2: THE PERFORMANCE PRO (Tactical Minimalism & Military Precision)",
-  "design_mode": "Tactical Military HUD & Cyber-Realistic Post-Apocalypse",
-  "summary": "Concise incremental design blueprint adding 6 selectable character skins (Asker, FBI, Sivil, Terörist, Çete Erkek, Çete Kadın), real-time 3D character preview with idle weapon holding and firing poses based on reference images, 9-weapon loadout synchronization, mobile 390px support, and seamless multiplayer integration while strictly preserving the established DEADZONE visual language.",
-  "reference_analysis": {
-    "reference_image_idle": "https://customer-assets-cm19k8pv.emergentagent.net/job_community-hood/artifacts/7br1gh8b_image.png",
-    "reference_image_fire": "https://customer-assets-cm19k8pv.emergentagent.net/job_community-hood/artifacts/1uiui95z_image.png",
-    "idle_pose_breakdown": {
-      "character_posture": "Low-ready tactical shoulder or chest hold. Torso rotated slightly 12-15 degrees off-axis. Elbows tucked close to ribs. Left support hand cradling gun handguard/grip; right dominant hand on trigger assembly at chest/hip level. Muzzle depressed 20-30 degrees downward. Subtle cyclic breathing sway (0.012 vertical sine wave, 1.8s loop).",
-      "visual_tension": "Vigilant, relaxed combat ready. Weapon held safely yet immediately ready to snap into line of sight."
-    },
-    "fire_pose_breakdown": {
-      "character_posture": "Raised sightline combat firing stance. Both arms extended straight toward crosshair target line, rifle stock firmly wedged into right shoulder pocket. Left forearm locked beneath the barrel/shroud for vertical recoil mitigation. Head slightly cocked down towards iron sights/optics. High-energy muzzle flash illumination, intermittent barrel flash particle burst, and dynamic kickback recoil along Z-axis (-0.08m to -0.12m with exponential damping).",
-      "visual_tension": "Kinetic muzzle discharge, explosive recoil impulse, intense tactical focus, shell casing ejection angle."
-    }
-  },
-  "skins": [
-    {
-      "id": "soldier",
-      "name_tr": "Asker",
-      "name_en": "Military Soldier",
-      "callsign": "KORUCU-01",
-      "tag": "DÜZENLİ ORDU PİYADESİ",
-      "visual_identity": {
-        "shirt_color": "#4a5944",
-        "pants_color": "#2c382b",
-        "vest_color": "#334132",
-        "helmet_color": "#3d4c3a",
-        "skin_tone": "#caa17b",
-        "features": "Kevlar PASGT kask, taktik askeri balistik hücum yeleği, şarjör cepleri, omuz birim arması, kamuflaj askeri pantolon ve çöl botları."
-      }
-    },
-    {
-      "id": "fbi",
-      "name_tr": "FBI",
-      "name_en": "FBI Special Agent",
-      "callsign": "AJAN-09",
-      "tag": "FEDERAL OPERASYON BİRİMİ",
-      "visual_identity": {
-        "shirt_color": "#171c26",
-        "pants_color": "#14171d",
-        "vest_color": "#1c2331",
-        "helmet_color": "#1e2533",
-        "skin_tone": "#d2ad8c",
-        "features": "Lacivert/gece siyahı taktik rüzgarlık, sarı 'FBI' göğüs/sırt harfli taktik plaka taşıyıcı yelek, kulaklık telsiz aparatı, koyu operasyon şapkası veya kaskı."
-      }
-    },
-    {
-      "id": "civilian",
-      "name_tr": "Sivil",
-      "name_en": "Civilian Survivor",
-      "callsign": "GEZGİN-77",
-      "tag": "DİRENİŞÇİ SAKİN",
-      "visual_identity": {
-        "shirt_color": "#6e4d3b",
-        "pants_color": "#3f4651",
-        "vest_color": "#4d4133",
-        "helmet_color": null,
-        "skin_tone": "#cca785",
-        "features": "Kapüşonlu yıpranmış pamuklu ceket veya oduncu gömleği, kot pantolon, bere veya dağınık saç, basit göğüs askısı ve sırt çantası."
-      }
-    },
-    {
-      "id": "terrorist",
-      "name_tr": "Terörist",
-      "name_en": "Insurgent / Terrorist",
-      "callsign": "MİLİS-13",
-      "tag": "GAYRİNİZAMİ SAVAŞÇI",
-      "visual_identity": {
-        "shirt_color": "#3a3832",
-        "pants_color": "#524d40",
-        "vest_color": "#2e2b26",
-        "helmet_color": null,
-        "skin_tone": "#ba8e6c",
-        "features": "Yüzü saran koyu kırmızı/zeytin yeşili poşu (kufiye/balaklava), çapraz mühimmat kemeri (bandolier), haki kargo pantolon, deri eldivenler."
-      }
-    },
-    {
-      "id": "gang_male",
-      "name_tr": "Çete Erkek",
-      "name_en": "Male Gangster",
-      "callsign": "SOKAK-88",
-      "tag": "VAROŞ BARONU",
-      "visual_identity": {
-        "shirt_color": "#1c1c1e",
-        "pants_color": "#24252a",
-        "vest_color": "#30323a",
-        "helmet_color": null,
-        "skin_tone": "#b88c67",
-        "features": "Siyah deri ceket veya bomber mont, kollarda dövme dokusu, gümüş boyun zinciri, ters takılmış beyzbol şapkası, siyah kargo pantolon."
-      }
-    },
-    {
-      "id": "gang_female",
-      "name_tr": "Çete Kadın",
-      "name_en": "Female Gangster",
-      "callsign": "ASİ-23",
-      "tag": "YERALTI KESKİN NİŞANCISI",
-      "visual_identity": {
-        "shirt_color": "#47212b",
-        "pants_color": "#1a1a20",
-        "vest_color": "#2d161d",
-        "helmet_color": null,
-        "skin_tone": "#d7b297",
-        "features": "Koyu bordo/biker deri yelek veya dar taktik üst, yüksek kesim operasyon botları, hafif kadınsı model silüeti (dar bel/kalça orantısı), at kuyruğu veya örgülü saç detayı."
-      }
-    }
-  ],
+  "theme": "dark-tactical-survival",
+  "emotional_archetype": "THE PERFORMANCE PRO / TACTICAL GRIT",
   "typography": {
-    "display_font": "'Barlow Condensed', sans-serif",
-    "mono_font": "'JetBrains Mono', monospace",
-    "accent_font": "'Bebas Neue', sans-serif",
-    "body_font": "'Barlow', sans-serif",
-    "scale": {
-      "h1_title": "text-4xl sm:text-5xl lg:text-6xl (maximum text-6xl, leading-tight, tracking-tight)",
-      "h2_section": "text-2xl sm:text-3xl lg:text-4xl (font-semibold)",
-      "h3_subsection": "text-xl sm:text-2xl",
-      "body": "text-sm sm:text-base (leading-relaxed)",
-      "technical_mono": "text-[9px] to text-xs (uppercase, tracking-[0.18em])"
+    "title_font": "Barlow Condensed, sans-serif",
+    "display_font": "Bebas Neue, sans-serif",
+    "mono_font": "JetBrains Mono, monospace",
+    "body_font": "Barlow, sans-serif",
+    "hierarchy": {
+      "boss_title": "text-2xl sm:text-3xl font-bold tracking-tight uppercase font-['Barlow_Condensed']",
+      "boss_subtitle": "text-xs sm:text-sm font-medium tracking-widest text-[#a8b898] font-mono",
+      "warning_banner": "text-xl sm:text-2xl font-black tracking-wider text-[#ff3b30] uppercase",
+      "hud_stats": "text-xs font-mono tracking-wider"
     }
   },
   "colors": {
-    "background_deep": "#0e1210",
-    "surface_card": "#1a2219e6",
-    "surface_card_selected": "#3a4732cc",
-    "primary_kinetic_red": "#d95845",
-    "primary_kinetic_hover": "#eb705a",
-    "accent_lime": "#b1c922",
-    "accent_sand": "#d5bf83",
-    "line_subtle": "#73806940",
-    "line_active": "#c7d69c",
-    "text_primary": "#eceee5",
-    "text_secondary": "#bbc3af",
-    "text_muted": "#7e8c72",
-    "status_dot": "#b1c994"
+    "background_base": "#0e1210",
+    "surface_tactical": "#141b16",
+    "surface_glass": "rgba(20, 27, 22, 0.88)",
+    "border_tactical": "rgba(115, 128, 105, 0.35)",
+    "border_highlight": "#eb705a",
+    "text_primary": "#f1f0e8",
+    "text_muted": "#8d9985",
+    "accent_danger": "#d95845",
+    "accent_laser_red": "#ff3838",
+    "accent_venom_purple": "#8b1638",
+    "accent_xenomorph_acid": "#4be3ac",
+    "accent_titan_lava": "#ff6f26",
+    "accent_lime_indicator": "#b1c994"
   },
-  "ui_component_addition": {
-    "component_name": "CharacterShowcase & SkinSelector",
-    "placement_in_lobby": "Inside Lobby.jsx, between Nickname field ('01 ÇAĞRI ADIN') and Weapon field ('03 SİLAHINI SEÇ'). Re-index sections: 01 ÇAĞRI ADIN, 02 KARAKTER GÖRÜNÜMÜ, 03 SİLAHINI SEÇ.",
-    "skin_grid_layout": "6-card tactical grid (3 columns x 2 rows on desktop/tablet, 3 columns x 2 rows compact on mobile 390px). Height of skin card: 46px on mobile, 52px on desktop.",
-    "skin_card_anatomy": {
-      "icon_badge": "Square 24x24 badge with 2-letter abbreviation or miniature tactical icon (e.g., AS, FB, SV, TR, ÇE, ÇK).",
-      "name_label": "Uppercase Barlow Condensed font-semibold text-sm.",
-      "sub_tag": "JetBrains Mono text-[7px] text-muted tracking-widest.",
-      "active_indicator": "3px left border with accent lime (#b1c922) and checkmark badge in top-right."
+  "bosses": [
+    {
+      "id": "pico_titan",
+      "name": "Pico Gözcü Devi (Pico Blast Guardian)",
+      "hp": 5000,
+      "scale": " devasa dev robotik golem (3.8x standart oyuncu boyu)",
+      "theme_color": "#ff3838",
+      "visual_traits": "Kırmızı parlayan tek göz retikülü, omuz roketi podları, ağır metalik zırh kaplama, enerji lazer tüpü",
+      "skills": ["50m Görüş & Takip", "Lazer Işını", "Güdümlü Roket Salvosu", "Sismik Zıplama & Ezici Alan Hasarı"],
+      "spawn_badge": "BOSS 01 - WESTFALL FABRİKA ALANI"
     },
-    "preview_pane_controls": {
-      "description": "In WeaponShowcase.jsx, expand the showcase area to display the actual 3D character in real-time holding the selected weapon, accompanied by an interactive pose toggle switch.",
-      "pose_toggle": {
-        "modes": ["idle (HAZIRLIK)", "fire (ATEŞ)"],
-        "ui_style": "Segmented tactical button group in showcase top bar: [BEKLEME / HAFİF TUTUŞ] vs [ATEŞ / ATIŞ POZU].",
-        "live_interaction": "Clicking 'ATEŞ' triggers cyclic gunfire animation on the 3D model, muzzle flash flash mesh, shell casing particle eject, and weapon kickback recoil."
-      }
-    }
-  },
-  "mobile_layout_strategy_390px": {
-    "max_viewport_width": "390px (iPhone 12/13/14 standard)",
-    "lobby_max_width": "100%",
-    "padding": "px-4 pt-4 pb-28",
-    "tabbed_or_stacked_accordion": "Show compact skin chips: 3 items per row with vertical height 44px each to prevent screen overflow. Total height of 6-item skin picker: under 100px.",
-    "character_preview_mobile": "On screens <= 767px, render a compact 180px height interactive WebGL canvas or interactive quick-view modal above the join button so mobile players can inspect their chosen skin and idle/fire stance."
-  },
-  "three_js_implementation_plan": {
-    "models_js_enhancement": {
-      "function_signature": "createHuman(zombie = false, variant = 0, weaponType = 'ak47', skinId = 'soldier')",
-      "skin_coloring_and_accessories": {
-        "soldier": "Kevlar helmet (SphereGeometry cut), plate carrier chest box with 3 ammo pouches, green/khaki camo tints (#4a5944 shirt, #2c382b pants, #334132 vest).",
-        "fbi": "Dark navy tactical windbreaker (#171c26), high-contrast 'FBI' badge on chest, tactical vest, dark baseball cap/tactical lid.",
-        "civilian": "Brown flannel / hoodie torso (#6e4d3b), blue jeans (#3f4651), visible hair mesh instead of helmet, survival rucksack on back.",
-        "terrorist": "Shemagh / kufiye wrapped head (Cylinder/Torus geometry covering lower face), dark green/sand camo clothing, diagonal bandolier ammo strip.",
-        "gang_male": "Black leather jacket (#1c1c1e), gold/silver chain torus neck ring, reversed snapback cap, tattooed arm texture or dark sleeves.",
-        "gang_female": "Bordeaux tactical vest (#47212b), slender torso scaling (scale x: 0.88, z: 0.85), sleek hair mesh ponytail (CapsuleGeometry extended backward)."
-      }
+    {
+      "id": "carnage_venom",
+      "name": "Carnage-Venom Simbiyot Dehşeti",
+      "hp": 6000,
+      "scale": " devasa organik amorf kütle (3.5x oyuncu boyu)",
+      "theme_color": "#941634",
+      "visual_traits": "Koyu siyah-kızıl organik lifler, amorf pençeler, çeneli kafa yapısı, kaynayan sıvı parazit zemin havuzu",
+      "skills": ["Sıcak Kor Ağ Fırlatma", "Sıvı Fazına Geçerek Ani Işınlanma (Teleport)", "Yakın Pençe Boğması"],
+      "spawn_badge": "BOSS 02 - DOĞU BATAKLIK DERESİ"
     },
-    "animation_human_enhancement": {
-      "function_signature": "animateHuman(g, time, moving, running, dt, direction, poseMode = 'idle', firing = false)",
-      "idle_pose_logic": "Arms rotated downward: left arm arm.rotation.x = -0.75, right arm arm.rotation.x = -0.85. Gun rested at chest height: gunRest.set(0.20, 1.25, 0.45). Gentle breathing oscillation: Math.sin(time * 2.2) * 0.008.",
-      "fire_pose_logic": "Both arms raised straight ahead: arm.rotation.x = -1.52, arm.rotation.y = 0.12. Gun pushed forward at eye level: gunRest.set(0.18, 1.48, 0.65). Cyclic firing recoil pulse: if firing, kickback gun.position.z -= 0.12 * Math.sin((time % 0.15) / 0.15 * Math.PI) with randomized muzzle flash mesh opacity."
-    }
-  },
-  "multiplayer_and_backend_contracts": {
-    "join_request_payload": {
-      "name": "string (2-18 chars)",
-      "weapon": "string (one of 9 weapons: ak47, ak117, ak107, shotgun, m4, rocket, minigun, flamethrower, lava)",
-      "skin": "string (one of 6 skins: soldier, fbi, civilian, terrorist, gang_male, gang_female - defaults to 'soldier')"
+    {
+      "id": "xenomorph_prime",
+      "name": "Xenomorph Prime (Alien Hive Mother)",
+      "hp": 10000,
+      "scale": " uzun kuyruklu biyomekanik kabus (4.2x oyuncu uzunluğu)",
+      "theme_color": "#38df9f",
+      "visual_traits": "Uzun pürüzsüz kubbe kafa, biyomekanik omurga, jilet gibi bıçaklı kırbaç kuyruk, asit yeşili salya damlaları",
+      "skills": ["Uzun Mesafeli Duvar/Zemin Sıçraması", "Kırbaç Kuyruk Saplaması", "Asitli Çene Isırığı", "Zehirli Kan Sızıntısı"],
+      "spawn_badge": "BOSS 03 - KUZEY HANGAR HARABELERİ"
     },
-    "websocket_sync": {
-      "player_broadcast": "Include 'skin' field in state.players JSON snapshot so all connected clients instantiate the exact corresponding 3D skin model and materials."
+    {
+      "id": "ash_titan",
+      "name": "Kül Titanı (Ash & Magma Colossus)",
+      "hp": 8000,
+      "scale": " volkanik taş devi (4.5x oyuncu boyu)",
+      "theme_color": "#ff641a",
+      "visual_traits": "Çatlamış magma gövdesi, lav sızan gözler ve omuzlar, duman/kül partikülleri, alev saçan dev yumruklar",
+      "skills": ["Tektonik Şok Dalgası", "Lava Püskürtme ve Zemin Alevi", "Volkanik Çöküş"],
+      "spawn_badge": "BOSS 04 - GÜNEY KRATERİ & MADEN"
     }
-  },
-  "qa_test_ids": [
-    "skin-selection-label",
-    "skin-grid",
-    "skin-card-soldier",
-    "skin-card-fbi",
-    "skin-card-civilian",
-    "skin-card-terrorist",
-    "skin-card-gang_male",
-    "skin-card-gang_female",
-    "pose-toggle-idle",
-    "pose-toggle-fire",
-    "character-preview-canvas",
-    "join-game-button"
   ],
+  "start_screen_blueprint": {
+    "goal": "START GAME ekranında oyuna ait orijinal illüstrasyon banner'ını ve arka plan atmosferini korumak, oyunun hayatta kalma ve dev boss atmosferini vurgulamak",
+    "implementation": {
+      "banner_container": "start-game-banner: Arka plan Three.js shader tuvalinin üzerine oturan, yarı saydam taktiksel grid overlay ile harmanlanmış Deadzone devasa Boss görsel banner'ı (1200x520 oranında, köşelerinde 1px reticle ve köşe çizgileri)",
+      "reference_image": "https://customer-assets-cm19k8pv.emergentagent.net/job_community-hood/artifacts/bz8s22r8_image.png",
+      "banner_overlay": "linear-gradient(180deg, rgba(14,18,16,0.3) 0%, rgba(14,18,16,0.85) 85%, #0e1210 100%)",
+      "interactive_start_button": "Korunan mevcut START GAME butonu (.intro-start-button), banner'ın altında belirgin odak noktasında kalır",
+      "test_ids": {
+        "start_screen": "start-screen",
+        "start_banner": "start-game-banner",
+        "start_game_button": "start-game-button"
+      }
+    }
+  },
+  "hud_boss_system_blueprint": {
+    "tactical_radar_markers": {
+      "description": "Mini haritada 4 Boss farklı ikon ve renklerle gösterilir (Pico: Kırmızı Dürbünlü Kare, Carnage: Mor/Kızıl Pençe Noktası, Xenomorph: Yeşil Baklava, Kül Titanı: Turuncu Alev Üçgeni)",
+      "boss_indicator_canvas": "Minimap 2D çiziminde boss koordinatları puls efekti ile yanıp sönen 8px halka ve yön oku ile işaretlenir"
+    },
+    "nearest_boss_health_bar": {
+      "placement": "HUD üst-orta kısımda, pusulanın hemen altında veya 120m yaklaşıldığında devreye giren Boss vitals çubuğu",
+      "elements": [
+        "Boss İsmi ve Sınıfı (Örn: 'PICO GÖZCÜ DEVİ - 5,000 / 5,000 HP')",
+        "Mesafe Rozeti (Örn: '38m - TEHLİKELİ MENZİL')",
+        "Dinamik renkli sağlık barı (Boss'un renk temasına göre gradyan)",
+        "Yetenek Saldırı Uyarısı (Örn: 'DİKKAT: LAZER KİLİTLENMESİ!', 'ŞOK DALGASI GELİYOR!')"
+      ],
+      "test_ids": {
+        "boss_health_container": "hud-boss-tracker",
+        "boss_name_label": "boss-name-label",
+        "boss_health_bar": "boss-health-bar",
+        "boss_distance_badge": "boss-distance-badge",
+        "boss_attack_warning": "boss-attack-warning"
+      }
+    },
+    "tactical_boss_dialog": {
+      "button": "HUD sağ üst buton grubuna radar/kelle avı ikonu eklenir (Crosshair/Skull/Flame ikonu)",
+      "content": "4 Boss'un mevcut durumu (Canlı / Yeniden Doğuş Süresi sayacı: 5-10 dk), harita koordinatları ve yetenek listesini listeleyen taktik brifing paneli",
+      "test_ids": {
+        "hud_boss_dialog_button": "hud-boss-dialog-button",
+        "boss_status_dialog": "boss-status-dialog",
+        "boss_card_pico": "boss-card-pico_titan",
+        "boss_card_carnage": "boss-card-carnage_venom",
+        "boss_card_xenomorph": "boss-card-xenomorph_prime",
+        "boss_card_titan": "boss-card-ash_titan"
+      }
+    }
+  },
+  "layout_and_responsive_rules": {
+    "desktop": {
+      "boss_bar_width": "max-w-[460px] mx-auto top-[76px]",
+      "minimap_boss_pings": "Genişletilmiş 160x160 canvas'ta kenar yön okları",
+      "spacing": "p-4 ile p-6 taktik kartlar"
+    },
+    "mobile": {
+      "boss_bar_width": "calc(100% - 32px) top-[62px]",
+      "touch_safe_area": "D-Pad ve Ateş butonu çakışmayacak şekilde üst bölgede Boss barı",
+      "font_scaling": "H2 ve H3 mobile'da max 20px, etiketler 8px JetBrains Mono"
+    }
+  },
   "instructions_to_main_agent": [
-    "CRITICAL: Do NOT alter or delete existing DEADZONE core mechanics (movement, bullet physics, sound system, audio preloading, leaderboards, settings).",
-    "Preserve all existing CSS classes in /app/frontend/src/App.css. Add additive CSS rules under .skin-grid, .skin-card, and .pose-segmented controls.",
-    "Add the 'skin' parameter to backend/server.py JoinRequest model (optional with default='soldier' for backwards compatibility).",
-    "Keep localStorage key 'deadzone-skin' to persist user selection across reloads.",
-    "Verify mobile responsiveness at exactly 390px width: ensure no horizontal overflow, buttons remain minimum 44px tap target height."
+    "Do NOT alter original 3D multiplayer survival engine gameplay loop or destroy existing StartScreen button handler.",
+    "Place the static game-branded Boss banner artwork on the StartScreen behind or framing the START GAME button without obscuring the canvas shader or the button clickability.",
+    "Ensure all 4 bosses (Pico Blast robot, Carnage-Venom symbiote, Xenomorph, and Ash Titan) spawn at distinct fixed map locations at match start for testing.",
+    "Implement 5-10 minute respawn timer logic for each boss individually upon defeat.",
+    "Render clear map pings/distance vectors on the minimap and tactical compass for all 4 bosses.",
+    "Ensure every interactive and key informational element contains the specified data-testid attribute."
   ]
 }

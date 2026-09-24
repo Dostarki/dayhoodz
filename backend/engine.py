@@ -9,6 +9,8 @@ from combat import shoot, update_projectiles
 from zombies import update_zombies
 from enemy_types import spawn_enemies
 from enemy_damage import update_statuses
+from boss_catalog import initial_bosses, boss_snapshot
+from bosses import update_bosses
 
 
 class Game:
@@ -17,6 +19,8 @@ class Game:
         self.events, self.drops = [], []
         self.projectiles, self.fires = [], []
         self.swarms = []
+        self.bosses = initial_bosses()
+        self.boss_projectiles, self.boss_zones = [], []
         self.save_score = save_score
         self.counter = 0
         self.tasks = set()
@@ -104,7 +108,7 @@ class Game:
                 p['protected_until'] = now+12
             c = p['controls'] if now-p['input_time'] < .4 else {'x': 0, 'z': 0, 'fire': False, 'sprint': False}
             running = c['sprint'] and p['stamina'] > 1 and (abs(c['x'])+abs(c['z']) > 0)
-            speed = 10 if running else 6
+            speed = (10 if running else 6)*(.45 if p.get('statuses', {}).get('webbed', {}).get('until', 0) > now else 1)
             p['vx'],p['vz']=c['x']*speed,c['z']*speed
             p['stamina'] = max(0, min(100, p['stamina']+(-22 if running else 13)*dt))
             move(p, c['x']*speed*dt, c['z']*speed*dt)
@@ -132,6 +136,7 @@ class Game:
         update_zombies(self,living,dt,now)
         update_projectiles(self,dt,now)
         update_statuses(self, now)
+        update_bosses(self, dt, now)
         for drop in list(self.drops):
             picked = next((p for p in living if math.hypot(p['x']-drop['x'], p['z']-drop['z']) < 2), None)
             if picked:
@@ -160,6 +165,9 @@ class Game:
         me['statuses'] = {kind: round(max(0, effect['until']-now), 1) for kind, effect in p.get('statuses', {}).items() if effect['until'] > now}
         me.update(reloading=max(0, p['reload_until']-now), protected=max(0, p['protected_until']-now), awaiting_input=p['awaiting_input'], survived=0 if p['awaiting_input'] else int((p['died_at'] or now)-p['born']))
         return {'type': 'state', 'me': me, 'online': len(self.players),
+                'bosses': [boss_snapshot(b, now) for b in self.bosses.values()],
+                'boss_projectiles': [{k: e[k] for k in ['id', 'owner', 'kind', 'x', 'z', 'y', 'dx', 'dz']} for e in self.boss_projectiles if close(e)],
+                'boss_zones': [{k: e[k] for k in ['id', 'owner', 'x', 'z', 'r']} for e in self.boss_zones if close(e)],
                 'players': [actor(e) for e in self.players.values() if e['id'] != p['id'] and close(e)],
                 'zombies': [{**compact(e, ['id', 'x', 'z', 'angle', 'hp', 'variant', 'mode']), 'enemy_type': e.get('enemy_type', 'normal'), 'runner': e.get('runner', False), 'max_hp': e.get('max_hp', 100), 'pack': e.get('pack', ''), 'attacking': e.get('attack_until', 0) > now} for e in self.zombies.values() if close(e)],
                 'swarms': [compact(e, ['id', 'owner', 'target', 'x', 'z']) for e in self.swarms if close(e)],

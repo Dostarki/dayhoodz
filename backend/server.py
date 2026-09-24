@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 from world import WORLD, WEAPONS
 from engine import Game
 from skins import SkinId
+from boss_catalog import boss_snapshot
 
 load_dotenv(Path(__file__).parent / '.env')
 client = AsyncIOMotorClient(os.environ['MONGO_URL'])
@@ -82,6 +83,11 @@ async def root():
 @app.get('/api/status')
 async def status():
     return {'online': len(game.players), 'capacity': 200, 'friendly_fire': True, 'map': 'Westfall', 'size': 1600, 'tick_rate': 20}
+
+
+@app.get('/api/bosses')
+async def bosses_status():
+    return [boss_snapshot(boss, time.monotonic()) for boss in game.bosses.values()]
 
 
 @app.get('/api/world')

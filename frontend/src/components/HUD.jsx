@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Settings2, Trophy, Heart, Zap, Crosshair, Skull, Volume2, VolumeX, ShieldAlert, RotateCcw, ArrowRight, Navigation, Building2 } from 'lucide-react';
+import { Settings2, Trophy, Heart, Zap, Crosshair, Skull, Volume2, VolumeX, ShieldAlert, RotateCcw, ArrowRight, Navigation, Building2, Map } from 'lucide-react';
 import { Button } from './ui/button';
 import { WEAPONS } from './Lobby';
 import { StatusEffects } from './StatusEffects';
+import { drawBossMarkers } from '../game/bossMinimap';
 
 const Minimap = ({ state, engine }) => {
   const ref = useRef(null);
@@ -15,11 +16,12 @@ const Minimap = ({ state, engine }) => {
     ctx.fillStyle = '#df7160'; state.zombies.forEach(z => { ctx.beginPath(); ctx.arc(z.x*scale, z.z*scale, 2, 0, Math.PI*2); ctx.fill(); });
     ctx.fillStyle = '#98c1cf'; state.players.forEach(p => { ctx.beginPath(); ctx.arc(p.x*scale, p.z*scale, 3, 0, Math.PI*2); ctx.fill(); });
     ctx.fillStyle = '#e1e8b8'; ctx.translate(me.x*scale, me.z*scale); ctx.rotate(-me.angle); ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(-4, -4); ctx.lineTo(4, -4); ctx.closePath(); ctx.fill(); ctx.restore();
+    drawBossMarkers(ctx,state);
   }, [state,engine]);
   return <div className="minimap" data-testid="minimap"><span className="map-north">K</span><canvas ref={ref} width="160" height="160" data-testid="minimap-canvas" /><span className="minimap-location" data-testid="minimap-location">WESTFALL <Navigation size={10} /></span></div>;
 };
 
-export const HUD = ({ state, ping, engine, onSettings, onLeaderboard, onRespawn, onLeave, muted, toggleMuted }) => {
+export const HUD = ({ state, ping, engine, onSettings, onLeaderboard, onRespawn, onLeave, muted, toggleMuted, onBossMap }) => {
   const [feed, setFeed] = useState([]);
   const me = state?.me, weapon = WEAPONS.find(w => w.id === me?.weapon);
   useEffect(() => { if (!state) return; const kills = state.events.filter(e => e.type === 'kill'); if (kills.length) setFeed(old => [...kills.map((e, i) => ({ ...e, time: Date.now(), key: `${Date.now()}-${i}` })), ...old].slice(0, 4)); }, [state]);
@@ -29,7 +31,7 @@ export const HUD = ({ state, ping, engine, onSettings, onLeaderboard, onRespawn,
     <StatusEffects statuses={me.statuses} alive={me.hp > 0} />
     <div className="hud-top-left"><div className="hud-wordmark" data-testid="hud-brand">DEADZONE<span>LIVE</span></div><div className="hud-connection" data-testid="hud-connection"><i className="status-dot" /><span>{state.online} / 200</span><span>{ping} ms</span></div></div>
     <div className="hud-compass" data-testid="hud-compass"><span>B</span><i /><span>KB</span><i /><strong>K</strong><i /><span>KD</span><i /><span>D</span><div className="compass-pointer">▼</div></div>
-    <div className="hud-buttons"><button data-testid="hud-leaderboard-button" title="Sıralama" aria-label="Sıralama" onClick={onLeaderboard}><Trophy size={19} /></button><button data-testid="hud-sound-button" title="Ses" aria-label="Ses aç/kapat" onClick={toggleMuted}>{muted ? <VolumeX size={19} /> : <Volume2 size={19} />}</button><button data-testid="hud-settings-button" title="Ayarlar" aria-label="Ayarlar" onClick={onSettings}><Settings2 size={19} /></button></div>
+    <div className="hud-buttons"><button data-testid="hud-boss-map-button" title="Boss haritası" aria-label="Boss haritası" onClick={onBossMap}><Map size={19}/></button><button data-testid="hud-leaderboard-button" title="Sıralama" aria-label="Sıralama" onClick={onLeaderboard}><Trophy size={19} /></button><button data-testid="hud-sound-button" title="Ses" aria-label="Ses aç/kapat" onClick={toggleMuted}>{muted ? <VolumeX size={19} /> : <Volume2 size={19} />}</button><button data-testid="hud-settings-button" title="Ayarlar" aria-label="Ayarlar" onClick={onSettings}><Settings2 size={19} /></button></div>
     <div className="kill-feed" data-testid="kill-feed">{feed.map(e => <div key={e.key} data-testid={`kill-feed-${e.key}`}><span>{e.name}</span><Crosshair size={12} /><span className={e.zombie ? '' : 'pvp-name'}>{e.target}</span></div>)}</div>
     {me.interior&&<div className="interior-notice" data-testid="interior-notice"><Building2 size={17}/><span>{me.interior}<small>İÇ MEKÂN · HASAR KORUMASI YOK</small></span></div>}
     {me.protected > 0 && me.hp > 0 && <div className="spawn-protection" data-testid="spawn-protection"><ShieldAlert size={15} /> GÜVENLİ BAŞLANGIÇ <b>{me.awaiting_input ? 'HAZIR' : `${Math.ceil(me.protected)}s`}</b></div>}

@@ -16,7 +16,7 @@ export class MovementController{
   update(dt,input,me,age){
     if(!this.initialized||this.id!==me.id){this.reset(me.x,me.z);this.id=me.id;}
     const moving=Math.hypot(input.x,input.z)>.01&&me.hp>0;
-    const running=input.sprint&&me.stamina>1, speed=running?10:6;
+    const running=input.sprint&&me.stamina>1, speed=(running?10:6)*(me.statuses?.webbed>0?.45:1);
     const len=Math.max(1,Math.hypot(input.x,input.z));
     const tx=moving?input.x/len*speed:0,tz=moving?input.z/len*speed:0;
     const blend=1-Math.exp(-dt*(moving?28:35));this.vx+=(tx-this.vx)*blend;this.vz+=(tz-this.vz)*blend;

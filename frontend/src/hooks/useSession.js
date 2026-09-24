@@ -36,6 +36,7 @@ export function useSession(engineRef) {
         else if (message.type === 'state') {
           engineRef.current?.receive(message); setState(message);
           audio.enemies(message);
+          message.events.filter(e=>e.type==='boss_impact'||e.type==='boss_beam').slice(0,2).forEach(e=>audio.explosion(Math.hypot(e.x-message.me.x,e.z-message.me.z),e.x-message.me.x));
           message.events.forEach(e => {
             if (e.type === 'shot' && e.owner !== message.me.id) { const d=Math.hypot(e.x-message.me.x,e.z-message.me.z);audio.shot(e.weapon||'ak47',true,d,(e.x-message.me.x)/25); }
             if (e.type === 'explosion') audio.explosion(Math.hypot(e.x-message.me.x,e.z-message.me.z));

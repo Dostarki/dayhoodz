@@ -6,21 +6,24 @@ from enemy_types import ENEMY_TYPES
 
 
 def targets(game):
-    return list(game.zombies.values())+list(game.players.values())
+    return list(game.zombies.values())+list(game.players.values())+list(game.bosses.values())
 
 
 def hurt(game,target,amount,owner,now,source_name='Ateş'):
     if target['hp'] <= 0 or target.get('protected_until',0)>now: return
     target['hp'] = max(0,target['hp']-amount)
-    if target.get('zombie') and (target['hp'] <= 0 or now-target.get('last_hurt_sound', 0) >= .6):
+    if target.get('zombie') and not target.get('boss') and (target['hp'] <= 0 or now-target.get('last_hurt_sound', 0) >= .6):
         target['last_hurt_sound'] = now
         game.events.append({'type': 'enemy_sound', 'action': 'death' if target['hp'] <= 0 else 'hurt', 'enemy_type': target.get('enemy_type', 'normal'), 'owner': target['id'], 'x': target['x'], 'z': target['z']})
     if target['hp'] > 0: return
     zombie = target.get('zombie',False)
     if owner and owner['id'] != target['id']:
         owner['kills' if zombie else 'pvp'] += 1
-        owner['score'] += 100 if zombie else 25
-    game.events.append({'type':'kill','owner':owner['id'] if owner else '', 'name':owner['name'] if owner else source_name, 'target':ENEMY_TYPES.get(target.get('enemy_type'), {}).get('name', 'Enfekte') if zombie else target['name'],'x':target['x'],'z':target['z'],'zombie':zombie,'skin':target.get('skin','soldier'),'weapon':target.get('weapon','ak47'),'enemy_type':target.get('enemy_type','normal')})
+        owner['score'] += 2500 if target.get('boss') else 100 if zombie else 25
+    game.events.append({'type':'kill','owner':owner['id'] if owner else '', 'name':owner['name'] if owner else source_name, 'target':target['name'] if target.get('boss') else ENEMY_TYPES.get(target.get('enemy_type'), {}).get('name', 'Enfekte') if zombie else target['name'],'x':target['x'],'z':target['z'],'zombie':zombie,'skin':target.get('skin','soldier'),'weapon':target.get('weapon','ak47'),'enemy_type':target.get('enemy_type','normal'),'boss_type':target.get('boss_type')})
+    if target.get('boss'):
+        from boss_catalog import boss_died
+        boss_died(game, target, now)
     if zombie and target.get('enemy_type') == 'hive':
         # Remove all insects and their active poison in the same simulation tick as the kill.
         from enemy_damage import dismiss_hive
@@ -66,7 +69,7 @@ def update_projectiles(game,dt,now):
                 if e['id'] == projectile['owner'] or e['hp'] <= 0: continue
                 vx,vz = e['x']-x,e['z']-z
                 along = max(0,min(step,vx*projectile['dx']+vz*projectile['dz']))
-                if math.hypot(vx-along*projectile['dx'],vz-along*projectile['dz'])<.9:
+                if math.hypot(vx-along*projectile['dx'],vz-along*projectile['dz'])<e.get('radius', .9):
                     projectile['x'],projectile['z']=x+along*projectile['dx'],z+along*projectile['dz']; impact=True; break
         if impact:
             explode(game,projectile,now); game.projectiles.remove(projectile)
@@ -105,7 +108,7 @@ def shoot(game,p,now):
             for e in targets(game):
                 if e['id']==p['id'] or e['hp']<=0 or e.get('protected_until',0)>now: continue
                 ex,ez=e['x']-p['x'],e['z']-p['z']; along=ex*dx+ez*dz
-                if 0<along<nearest and abs(ex*dz-ez*dx)<.72: target,nearest=e,along
+                if 0<along<nearest and abs(ex*dz-ez*dx)<e.get('radius', .72): target,nearest=e,along
             game.events.append({'type':'shot','kind':'bullet','weapon':p['weapon'],'owner':p['id'],'x':p['x'],'z':p['z'],'tx':p['x']+dx*nearest,'tz':p['z']+dz*nearest,'hit':target is not None})
             if target: hurt(game,target,w['damage'],p,now)
     if p['ammo']==0 and p['reserve']: p['reload_until']=now+w['reload']

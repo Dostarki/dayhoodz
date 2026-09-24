@@ -8,6 +8,7 @@ import {audio} from './audio';
 import { createEnemy, animateEnemy } from './enemyModels';
 import { SwarmEffects } from './swarmEffects';
 import { RELOAD_DURATIONS } from './reloadAnimation';
+import { BossScene } from './bossScene';
 
 export class GameRenderer {
   constructor(container, world, onError) {
@@ -19,6 +20,7 @@ export class GameRenderer {
     this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#657367'); this.scene.fog = new THREE.Fog('#657367', 105, 220);
     this.fx=new SceneEffects(this.scene);
     this.swarmFx = new SwarmEffects(this.scene);
+    this.bossScene = new BossScene(this.scene,this.fx);
     this.camera = new THREE.OrthographicCamera(-50, 50, 35, -35, .1, 350);
     this.focus = new THREE.Vector3(0, 0, 0); this.offset = new THREE.Vector3(58, 72, 58);
     try { this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); } catch (e) { onError('Bu tarayıcıda 3D grafikler başlatılamadı. Donanım hızlandırmayı etkinleştir.'); throw e; }
@@ -72,7 +74,7 @@ export class GameRenderer {
   }
   setMode(mode, weapon, skin = this.skin || 'soldier') {
     this.mode = mode; this.keys = {}; this.mouseDown = false;
-    this.movement.initialized=false;this.localPending=[];this.nextShot=0;this.localReloadUntil=0;audio.stopAutomatic();audio.stopEnemies();this.fx.clear();this.swarmFx.clear();
+    this.movement.initialized=false;this.localPending=[];this.nextShot=0;this.localReloadUntil=0;audio.stopAutomatic();audio.stopEnemies();this.fx.clear();this.swarmFx.clear();this.bossScene.clear();
     this.demoZombies.forEach(z => { z.visible = mode === 'lobby'; });
     if (weapon !== this.weapon || skin !== this.skin) { disposeHuman(this.player); this.player = createHuman(false, 0, weapon, skin); this.scene.add(this.player); this.weapon = weapon; this.skin = skin; }
     this.scene.fog.color.set(mode === 'lobby' ? '#657367' : '#48564a'); this.scene.background.copy(this.scene.fog.color);
@@ -100,7 +102,7 @@ export class GameRenderer {
     const x=this.player.position.x,z=this.player.position.z,dx=Math.sin(this.angle),dz=Math.cos(this.angle);
     let range=w.kind==='lava'?Math.min(w.range,Math.max(3,Math.hypot(this.aimPoint.x-x,this.aimPoint.z-z))):w.range;
     range=this.movement.rayDistance(x,z,dx,dz,range);
-    for(const e of [...this.state.zombies,...this.state.players]){const ex=e.x-x,ez=e.z-z,along=ex*dx+ez*dz;if(e.hp>0&&along>0&&along<range&&Math.abs(ex*dz-ez*dx)<.75)range=along;}
+    for(const e of [...this.state.zombies,...this.state.players,...(this.state.bosses||[])]){const ex=e.x-x,ez=e.z-z,along=ex*dx+ez*dz;if(e.hp>0&&along>0&&along<range&&Math.abs(ex*dz-ez*dx)<(e.radius||.75))range=along;}
     this.fx.shot({kind:w.kind,x,z,tx:x+dx*range,tz:z+dz*range});triggerHumanShot(this.player);audio.shot(this.weapon);
     this.renderer.domElement.dataset.localShots=this.localShots;this.renderer.domElement.dataset.localAmmo=this.localAmmo;
   }
@@ -118,7 +120,7 @@ export class GameRenderer {
     this.localAmmo=Math.max(0,state.me.ammo-this.localPending.length);
     if(state.me.reloading>0||state.me.hp<=0||!state.me.ammo)audio.stopAutomatic();
     this.state = state;
-    this.lastSnapshotAt=performance.now();this.fx.sync(state);this.swarmFx.sync(state);
+    this.lastSnapshotAt=performance.now();this.fx.sync(state);this.swarmFx.sync(state);this.bossScene.sync(state);
     const wanted = new Set();
     [...state.zombies.map(e => ({ ...e, zombie: true })), ...state.players].forEach(e => {
       wanted.add(e.id); let g = this.entities.get(e.id);
@@ -128,6 +130,7 @@ export class GameRenderer {
     });
     this.entities.forEach((g, id) => { if (!wanted.has(id)) { disposeHuman(g); this.entities.delete(id); } });
     this.pendingEvents.forEach(event => { if (event.type === 'shot'&&event.owner!==state.me.id) { this.fx.shot(event); const actor = this.entities.get(event.owner); if (actor) triggerHumanShot(actor); } else if (event.type === 'kill') this.corpse(event); else if(event.type==='explosion')this.fx.explosion(event); else if(event.type==='enemy_attack' && this.entities.get(event.owner)?.visible) this.fx.shot(event); });
+    this.pendingEvents.forEach(event=>this.bossScene.event(event));
     this.pendingEvents = [];
   }
   shot(e) {
@@ -144,6 +147,7 @@ export class GameRenderer {
     }
   }
   corpse(e) {
+    if(e.boss_type)return;
     const g = e.zombie ? createEnemy(e.enemy_type, 1) : createHuman(false, 0, e.weapon, e.skin); g.position.set(e.x, .25, e.z); g.rotation.z = Math.PI/2; g.rotation.y = Math.random()*6;
     if (g.userData.flames) g.userData.flames.visible = false;
     this.scene.add(g); this.corpses.push(g); if (this.corpses.length > 20) disposeHuman(this.corpses.shift());
@@ -175,8 +179,9 @@ export class GameRenderer {
       this.player.position.set(predicted.x,0,predicted.z);
       const moving=predicted.speed>.15;
       this.ray.setFromCamera(this.pointer, this.camera); this.ray.ray.intersectPlane(this.plane, this.aimPoint);
-      if (this.touchFire && this.state.zombies.length) {
-        const target = this.state.zombies.reduce((a, b) => Math.hypot(a.x-me.x, a.z-me.z) < Math.hypot(b.x-me.x, b.z-me.z) ? a : b);
+      const touchTargets=[...this.state.zombies,...(this.state.bosses||[]).filter(b=>b.alive&&Math.hypot(b.x-me.x,b.z-me.z)<70)];
+      if (this.touchFire && touchTargets.length) {
+        const target = touchTargets.reduce((a, b) => Math.hypot(a.x-me.x, a.z-me.z) < Math.hypot(b.x-me.x, b.z-me.z) ? a : b);
         this.angle = Math.atan2(target.x-me.x, target.z-me.z);
       } else this.angle = Math.atan2(this.aimPoint.x-this.player.position.x, this.aimPoint.z-this.player.position.z);
       if(input.fire)this.tryLocalFire(now);else audio.stopAutomatic();
@@ -198,6 +203,8 @@ export class GameRenderer {
       this.renderer.domElement.dataset.swarmSound = audio.creatures?.metrics.swarm || false;
       this.renderer.domElement.dataset.enemyTypes = [...new Set(this.state.zombies.map(e => e.enemy_type))].join(',');
       this.renderer.domElement.dataset.swarmCount = this.state.swarms?.length || 0;
+      this.renderer.domElement.dataset.bossCount = this.bossScene.models.size;
+      this.renderer.domElement.dataset.bosses = JSON.stringify((this.state.bosses||[]).map(b=>({id:b.id,hp:b.hp,x:b.x,z:b.z,action:b.action})));
       this.renderer.domElement.dataset.remotePlayers = JSON.stringify([...this.entities.values()].filter(g => !g.userData.zombie).map(g => ({ id: g.userData.target.id, skin: g.userData.skin, pose: g.userData.pose })));
       this.renderer.domElement.dataset.predictedX=predicted.x.toFixed(2);this.renderer.domElement.dataset.predictedZ=predicted.z.toFixed(2);this.renderer.domElement.dataset.running=predicted.running;
       let inside='';this.chunks.forEach(chunk=>{(chunk.userData.buildings||[]).forEach(b=>{const h=b.userData.building,interior=Math.abs(predicted.x-h.x)<h.w/2-.25&&Math.abs(predicted.z-h.z)<h.d/2-.25;b.userData.cover.visible=!interior;if(interior)inside=h.name;});});this.renderer.domElement.dataset.interior=inside;
@@ -219,6 +226,7 @@ export class GameRenderer {
     this.ring.position.x = this.player.position.x; this.ring.position.z = this.player.position.z; this.ring.visible = this.player.visible;
     this.fx.update(dt,t);
     this.swarmFx.update(dt,t);
+    this.bossScene.update(dt,t);
     for (let i = this.effects.length-1; i >= 0; i--) if (performance.now() > this.effects[i].until) { const o = this.effects[i].obj; this.scene.remove(o); o.geometry.dispose(); o.material.dispose(); this.effects.splice(i, 1); }
     this.renderer.render(this.scene, this.camera);
     this.renderer.domElement.dataset.renderCalls = this.renderer.info.render.calls;
@@ -227,7 +235,7 @@ export class GameRenderer {
     this.frame = requestAnimationFrame(() => this.animate());
   }
   dispose() {
-    audio.stopAutomatic();audio.stopEnemies();this.fx.clear();this.fx.streams.dispose();this.swarmFx.dispose();
+    audio.stopAutomatic();audio.stopEnemies();this.fx.clear();this.fx.streams.dispose();this.swarmFx.dispose();this.bossScene.dispose();
     this.disposed = true; cancelAnimationFrame(this.frame); this.observer.disconnect();
     window.removeEventListener('keydown', this.down); window.removeEventListener('keyup', this.up); window.removeEventListener('pointermove', this.mouse); window.removeEventListener('pointerdown', this.fire); window.removeEventListener('pointerup', this.release); window.removeEventListener('blur', this.blur);
     this.renderer.domElement.removeEventListener('wheel', this.wheel);
